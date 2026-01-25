@@ -1,0 +1,442 @@
+:root {
+    --lacre-color: #8e44ad;
+    --lacre-oscuro: #5b2c6f;
+    --lacre-brillo: #a569bd;
+    --oro: #f1c40f;
+    --fondo-morado-claro: #f3e5f5; 
+}
+
+body, html {
+    margin: 0; padding: 0;
+    width: 100%;
+    background-color: var(--fondo-morado-claro);
+    /* TEXTURAS COMBINADAS: Papel arrugado + Flores y Mariposas */
+    background-image: 
+        url('https://www.transparenttextures.com/patterns/natural-paper.png'),
+        url('https://www.transparenttextures.com/patterns/flowers.png'); /* Patrón de flores y mariposas */
+    background-attachment: fixed;
+    font-family: 'Montserrat', sans-serif;
+    overflow-x: hidden;
+}
+
+/* --- SELLO Y OVERLAY --- */
+.overlay {
+    position: fixed; inset: 0; 
+    background-color: var(--fondo-morado-claro);
+    background-image: url('https://www.transparenttextures.com/patterns/natural-paper.png');
+    display: flex; justify-content: center; align-items: center; z-index: 10000;
+    transition: all 1.2s cubic-bezier(0.7, 0, 0.3, 1);
+}
+.wax-seal-heart { position: relative; width: 150px; height: 130px; cursor: pointer; margin: 0 auto; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2)); }
+.wax-seal-heart::before, .wax-seal-heart::after {
+    content: ""; position: absolute; left: 75px; top: 0; width: 75px; height: 120px;
+    background: radial-gradient(circle at 30% 30%, var(--lacre-brillo), var(--lacre-color));
+    border-radius: 75px 75px 0 0; transform: rotate(-45deg); transform-origin: 0 100%;
+    box-shadow: inset 2px 2px 5px rgba(255,255,255,0.3);
+}
+.wax-seal-heart::after { left: 0; transform: rotate(45deg); transform-origin: 100% 100%; }
+
+.initial { 
+    position: absolute; top: 30%; left: 0; right: 0; z-index: 10; 
+    text-align: center; font-family: 'Playfair Display'; font-size: 1.8rem; 
+    color: var(--oro); font-style: italic; font-weight: bold;
+}
+
+.tap-instruction { margin-top: 60px; text-align: center; letter-spacing: 5px; font-size: 0.7rem; color: var(--lacre-oscuro); text-transform: uppercase; }
+.overlay.hidden { opacity: 0; visibility: hidden; transform: scale(1.5); }
+
+/* --- CONTENIDO PRINCIPAL --- */
+.main-content {
+    opacity: 0;
+    transition: opacity 1.5s ease;
+}
+.main-content.visible { opacity: 1; }
+
+/* --- PORTADA (HERO) --- */
+.hero-section {
+    position: relative;
+    height: 100vh; width: 100%;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden; background-color: #000;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    margin-bottom: 50px;
+}
+
+.hero-section::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: url('./image/IMG-20230809-WA0145.jpg');
+    background-size: cover; background-position: center;
+    filter: blur(25px) brightness(0.4); z-index: 0;
+}
+
+.hero-image-container { position: relative; height: 100%; width: 100%; z-index: 1; display: flex; justify-content: center; }
+.hero-photo { height: 100%; width: auto; max-width: 100%; object-fit: contain; border-left: 1px solid rgba(255,255,255,0.1); border-right: 1px solid rgba(255,255,255,0.1); }
+.hero-overlay-dark { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 60%, rgba(0,0,0,0.8) 100%); z-index: 2; }
+
+.hero-info-container {
+    position: absolute; bottom: 12%; z-index: 3;
+    text-align: center; color: white; width: 100%;
+}
+.hero-main-name { font-family: 'Playfair Display', serif; font-size: clamp(3rem, 12vw, 5.5rem); font-style: italic; margin: 0; text-shadow: 2px 4px 10px rgba(0,0,0,0.8); }
+.hero-line { width: 60px; height: 1px; background: var(--oro); margin: 15px auto; box-shadow: 0 0 10px var(--oro); }
+
+/* --- TARJETA DE CUENTA REGRESIVA --- */
+.countdown-card {
+    padding: 60px 20px;
+    margin: 40px auto 100px;
+    max-width: 700px;
+    background: rgba(255, 255, 255, 0.88); /* Más opaco para que resalte sobre las flores */
+    border-radius: 40px;
+    box-shadow: 0 20px 50px rgba(142, 68, 173, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(15px);
+    text-align: center;
+}
+
+.intro-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--lacre-oscuro); margin-bottom: 20px; }
+.intro-text { font-family: 'Playfair Display', serif; font-style: italic; font-size: 1.2rem; color: #444; line-height: 1.6; max-width: 80%; margin: 0 auto 30px; }
+
+.countdown-container { display: flex; justify-content: center; align-items: center; gap: 20px; }
+.time-block span { font-family: 'Playfair Display', serif; font-size: clamp(2.8rem, 9vw, 4.5rem); color: var(--lacre-color); font-weight: bold; line-height: 1; }
+.time-divider { font-size: 2.5rem; color: var(--oro); padding-bottom: 25px; font-family: 'Playfair Display'; }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .hero-photo { width: 100%; height: 100%; object-fit: cover; }
+    .hero-section::before { display: none; }
+    .countdown-card { margin: 20px; border-radius: 30px; }
+}
+
+/* --- SECCIÓN RECORRIDO DE VIDA (TIMELINE) --- */
+.timeline-section {
+    padding: 100px 20px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.timeline-intro {
+    text-align: center;
+    margin-bottom: 60px;
+}
+
+.timeline-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 80px;
+}
+
+/* El hilo conductor de la línea de tiempo */
+.timeline-container::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 1px;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent, var(--oro), transparent);
+    z-index: 1;
+}
+
+.timeline-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+}
+
+/* Alternar orden: Foto izquierda, Texto derecha y viceversa */
+.timeline-item:nth-child(even) {
+    flex-direction: row-reverse;
+}
+
+/* --- MODIFICACIÓN PARA FOTOS COMPLETAS --- */
+
+.timeline-img-wrapper {
+    width: 45%;
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    border: 5px solid white;
+    background: rgba(255, 255, 255, 0.5); /* Fondo sutil por si la foto es muy rara */
+    transition: transform 0.4s ease;
+    
+    /* Eliminamos el aspect-ratio fijo para que la foto mande en el tamaño */
+    height: auto; 
+}
+
+.timeline-photo {
+    width: 100%;
+    height: auto; /* La foto mantiene su proporción original */
+    display: block;
+    object-fit: contain; /* Asegura que se vea toda la imagen */
+}
+
+/* Ajuste para que el texto se alinee mejor con fotos de distintos tamaños */
+.timeline-item {
+    display: flex;
+    align-items: center; /* Centra el texto verticalmente respecto a la foto */
+    justify-content: space-between;
+    width: 100%;
+    position: relative;
+    z-index: 2;
+}
+
+/* Ajuste para el año en fotos de tamaño variable */
+.timeline-year {
+    position: absolute;
+    bottom: 15px;
+    right: 15px;
+    background: var(--lacre-color);
+    color: white;
+    padding: 6px 18px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.85rem;
+    font-weight: bold;
+    border-radius: 50px;
+    z-index: 10;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+/* RESPONSIVE: En móviles la foto debe ser protagonista */
+@media (max-width: 768px) {
+    .timeline-img-wrapper {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+    
+    .timeline-photo {
+        max-height: 450px; /* Evita que fotos muy verticales sean infinitas en el celu */
+        object-fit: cover; /* En móvil, a veces conviene cover para no dejar huecos, pero si quieres 100% completa usa 'contain' */
+    }
+}
+
+/* --- CORRECCIÓN RELOJ RESPONSIVO --- */
+.countdown-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px; /* Reducido para móviles */
+    margin-top: 30px;
+}
+
+.time-block span {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 7vw, 4rem); /* Tamaño más flexible */
+    color: var(--lacre-color);
+    font-weight: bold;
+}
+
+@media (max-width: 480px) {
+    .countdown-container { gap: 5px; }
+    .time-divider { font-size: 1.5rem; padding-bottom: 15px; }
+    .time-block small { font-size: 0.5rem; letter-spacing: 1px; }
+}
+
+/* --- SECCIÓN CARRUSEL (OPCIÓN 2) --- */
+.carousel-section {
+    padding: 80px 0;
+    overflow: hidden;
+}
+
+.carousel-container {
+    width: 100%;
+    padding: 0 20px;
+}
+
+.carousel-track {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 20px;
+    padding: 20px 0;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Escondemos la barra de scroll pero mantenemos la funcionalidad */
+.carousel-track::-webkit-scrollbar { display: none; }
+
+.carousel-card {
+    flex: 0 0 80%; /* En móviles se ve el 80% de la foto */
+    max-width: 400px;
+    scroll-snap-align: center;
+    background: white;
+    border-radius: 25px;
+    overflow: hidden;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    border: 1px solid rgba(255,255,255,0.5);
+    position: relative;
+}
+
+.carousel-card img {
+    width: 100%;
+    height: 450px;
+    object-fit: cover; /* Aquí sí usamos cover para uniformidad en el carrusel */
+    display: block;
+}
+
+.carousel-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 30px 20px;
+    background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+    color: white;
+}
+
+.carousel-date {
+    background: var(--oro);
+    color: var(--lacre-oscuro);
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    font-family: 'Montserrat';
+}
+
+.carousel-info h3 {
+    margin: 10px 0 0;
+    font-family: 'Playfair Display';
+    font-size: 1.5rem;
+}
+
+.carousel-hint {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--lacre-color);
+    margin-top: 15px;
+    font-family: 'Montserrat';
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+@media (min-width: 768px) {
+    .carousel-card { flex: 0 0 350px; }
+    .carousel-track { justify-content: center; padding: 20px 40px; }
+}
+
+/* --- SECCIÓN CUANDO Y DONDE (ESTILO BODA) --- */
+.cuando-donde { 
+    padding: 80px 20px; 
+    text-align: center; 
+}
+
+.cards-grid { 
+    display: flex; 
+    justify-content: center; 
+    margin-top: 50px; 
+}
+
+.card-evento { 
+    background: #fff; 
+    width: 100%; 
+    max-width: 400px; 
+    border-radius: 20px; 
+    box-shadow: 0 15px 45px rgba(0,0,0,0.1); 
+    overflow: visible; 
+    position: relative; 
+    border: 1px solid rgba(0,0,0,0.05); 
+    transition: transform 0.3s; 
+}
+
+.card-evento:hover { 
+    transform: translateY(-10px); 
+}
+
+.card-header { 
+    position: relative; 
+    height: 230px; 
+}
+
+.card-header img { 
+    width: 100%; 
+    height: 100%; 
+    object-fit: cover; 
+    border-radius: 20px 20px 0 0; 
+}
+
+.icon-card-gold { 
+    position: absolute; 
+    bottom: -30px; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    background: #fff; 
+    width: 65px; 
+    height: 65px; 
+    border-radius: 50%; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    box-shadow: 0 8px 20px rgba(0,0,0,0.1); 
+    z-index: 10; 
+}
+
+.card-content { 
+    padding: 45px 25px 35px; 
+    text-align: center; 
+}
+
+.card-content h3 { 
+    font-family: 'Playfair Display', serif; 
+    color: var(--lacre-oscuro); 
+    font-size: 1.8rem;
+    margin-bottom: 10px; 
+}
+
+.frase-evento { 
+    font-style: italic; 
+    font-size: 0.95rem; 
+    color: #666; 
+    margin-bottom: 20px; 
+    min-height: 40px;
+    font-family: 'Playfair Display', serif;
+}
+
+.info-evento { 
+    border-top: 1px solid #eee; 
+    border-bottom: 1px solid #eee; 
+    padding: 15px 0; 
+    margin-bottom: 25px; 
+}
+
+.info-evento p {
+    margin: 5px 0;
+}
+
+.salon-name { font-weight: bold; color: var(--lacre-color); }
+.salon-address { font-size: 0.9rem; color: #777; }
+.salon-time { font-weight: 600; font-size: 1rem; color: var(--lacre-oscuro); }
+
+/* BOTÓN ADAPTADO */
+.btn-mapa { 
+    display: inline-block;
+    text-decoration: none;
+    background: transparent; 
+    border: 2px solid var(--lacre-color); 
+    color: var(--lacre-color); 
+    padding: 12px 30px; 
+    border-radius: 30px; 
+    cursor: pointer; 
+    font-weight: 600; 
+    transition: all 0.3s ease; 
+    text-transform: uppercase; 
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+}
+
+.btn-mapa:hover { 
+    background-color: var(--lacre-color) !important; 
+    color: #ffffff !important; 
+    box-shadow: 0 5px 15px rgba(142, 68, 173, 0.3); 
+}
+
+@media (max-width: 480px) {
+    .card-evento { margin: 0 15px; }
+}
+

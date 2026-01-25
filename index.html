@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis 15 Años | Andrea</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <audio id="musicaFondo" loop>
+        <source src="./audio/Ed Sheeran - Photograph (Lyrics).mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="overlay" class="overlay">
+        <div class="envelope-wrapper">
+            <div class="wax-seal-heart" onclick="abrirInvitacion()">
+                <div class="seal-content">
+                    <span class="initial">Andrea</span>
+                </div>
+            </div>
+            <p class="tap-instruction">TOCAR PARA ABRIR</p>
+        </div>
+    </div>
+
+    <main id="main-content" class="main-content">
+        <section class="hero-section">
+            <div class="hero-image-container">
+                <img src="./image/portada.jpg" alt="Andrea" class="hero-photo">
+                <div class="hero-overlay-dark"></div>
+            </div>
+
+            <div class="hero-info-container">
+                <p class="hero-welcome">BIENVENIDOS A MIS 15 AÑOS</p>
+                <h1 class="hero-main-name">Andrea</h1>
+                <div class="hero-line"></div>
+                <p class="hero-date-text">20 . JUNIO . 2026</p>
+            </div>
+        </section>
+
+        <section class="countdown-card">
+            <div class="countdown-intro">
+                <p class="intro-subtitle">UN MOMENTO ESPERADO</p>
+                <h2 class="intro-title">Faltan solo...</h2>
+                <p class="intro-text">
+                    "Hay momentos que cambian la vida para siempre, y quiero compartirlos con las personas que más
+                    quiero."
+                </p>
+            </div>
+
+            <div id="countdown" class="countdown-container">
+                <div class="time-block">
+                    <span id="days">00</span>
+                    <small>DÍAS</small>
+                </div>
+                <div class="time-divider">:</div>
+                <div class="time-block">
+                    <span id="hours">00</span>
+                    <small>HS</small>
+                </div>
+                <div class="time-divider">:</div>
+                <div class="time-block">
+                    <span id="minutes">00</span>
+                    <small>MIN</small>
+                </div>
+                <div class="time-divider">:</div>
+                <div class="time-block">
+                    <span id="seconds">00</span>
+                    <small>SEG</small>
+                </div>
+            </div>
+        </section>
+
+        <section class="timeline-section">
+            <div class="timeline-intro">
+                <p class="intro-subtitle">MI HISTORIA</p>
+                <h2 class="intro-title">Un Recorrido de Amor</h2>
+                <div class="hero-line"></div>
+            </div>
+
+            <div class="timeline-container">
+                <div class="timeline-item">
+                    <div class="timeline-img-wrapper">
+                        <img src="./image/1.jpg" alt="Mis primeros años" class="timeline-photo">
+                        <div class="timeline-year">2011</div>
+                    </div>
+                    <div class="timeline-text">
+                        <h3>Mis primeros pasos</h3>
+                        <p>Donde todo comenzó, rodeada de amor y sueños.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-img-wrapper">
+                        <img src="./image/2.jpg" alt="Creciendo" class="timeline-photo">
+                        <div class="timeline-year">2018</div>
+                    </div>
+                    <div class="timeline-text">
+                        <h3>Descubriendo el mundo</h3>
+                        <p>Creciendo con risas y momentos inolvidables.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-img-wrapper">
+                        <img src="./image/portada.jpg" alt="Mis 15" class="timeline-photo">
+                        <div class="timeline-year">2026</div>
+                    </div>
+                    <div class="timeline-text">
+                        <h3>Mis 15 Años</h3>
+                        <p>El comienzo de una nueva y hermosa etapa.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="carousel-section">
+            <div class="timeline-intro">
+                <p class="intro-subtitle">OPCIÓN CARRUSEL</p>
+                <h2 class="intro-title">Álbum de Momentos</h2>
+                <div class="hero-line"></div>
+            </div>
+
+            <div class="carousel-container">
+                <div class="carousel-track">
+                    <div class="carousel-card">
+                        <img src="./image/1.jpg" alt="Recuerdo 1">
+                        <div class="carousel-info">
+                            <span class="carousel-date">2011</span>
+                            <h3>Mis Inicios</h3>
+                        </div>
+                    </div>
+                    <div class="carousel-card">
+                        <img src="./image/2.jpg" alt="Recuerdo 2">
+                        <div class="carousel-info">
+                            <span class="carousel-date">2018</span>
+                            <h3>Creciendo</h3>
+                        </div>
+                    </div>
+                    <div class="carousel-card">
+                        <img src="./image/portada.jpg" alt="Recuerdo 3">
+                        <div class="carousel-info">
+                            <span class="carousel-date">2026</span>
+                            <h3>Mis 15</h3>
+                        </div>
+                    </div>
+                </div>
+                <p class="carousel-hint">Desliza para ver más →</p>
+            </div>
+        </section>
+    </main>
+
+
+    <section class="cuando-donde">
+        <div class="timeline-intro">
+            <p class="intro-subtitle">¿DÓNDE CELEBRAMOS?</p>
+            <h2 class="intro-title">Lugar y Horario</h2>
+            <div class="hero-line"></div>
+        </div>
+
+        <div class="cards-grid">
+            <div class="card-evento">
+                <div class="card-header">
+                    <img src="./image/salon.jpg" alt="Salón de Eventos">
+                    <div class="icon-card-gold">
+                        <svg viewBox="0 0 24 24" width="30" height="30" fill="var(--lacre-color)">
+                            <path
+                                d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                        </svg>
+                    </div>
+                </div>
+
+                <div class="card-content">
+                    <h3>Recepción</h3>
+                    <p class="frase-evento">"Los momentos felices se vuelven inolvidables cuando se comparten con seres
+                        queridos."</p>
+
+                    <div class="info-evento">
+                        <p class="salon-name">Salón de Eventos "La Mansión"</p>
+                        <p class="salon-address">Calle Ficticia 123, Ciudad de San Juan</p>
+                        <p class="salon-time">Sábado 20 de Junio - 21:00 Horas</p>
+                    </div>
+
+                    <a href="https://maps.google.com" target="_blank" class="btn-mapa">
+                        COMO LLEGAR
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
