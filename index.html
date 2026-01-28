@@ -13,6 +13,14 @@
 
 <body>
 
+    <div id="preloader">
+        <div class="loader-content">
+            <div class="loader-circle"></div>
+            <h1 class="loader-initials">Andrea</h1>
+            <p>Cargando Magia...</p>
+        </div>
+    </div>
+
     <audio id="musicaFondo" loop>
         <source src="./audio/Ed Sheeran - Photograph (Lyrics).mp3" type="audio/mpeg">
     </audio>
@@ -29,6 +37,7 @@
     </div>
 
     <main id="main-content" class="main-content">
+
         <section class="hero-section">
             <div class="hero-image-container">
                 <img src="./image/portada.jpg" alt="Andrea" class="hero-photo">
@@ -119,82 +128,283 @@
             </div>
         </section>
 
-        <section class="carousel-section">
+        <section class="cuando-donde">
             <div class="timeline-intro">
-                <p class="intro-subtitle">OPCIÓN CARRUSEL</p>
-                <h2 class="intro-title">Álbum de Momentos</h2>
+                <p class="intro-subtitle">¿DÓNDE CELEBRAMOS?</p>
+                <h2 class="intro-title">Lugar y Horario</h2>
                 <div class="hero-line"></div>
             </div>
 
-            <div class="carousel-container">
-                <div class="carousel-track">
-                    <div class="carousel-card">
-                        <img src="./image/1.jpg" alt="Recuerdo 1">
-                        <div class="carousel-info">
-                            <span class="carousel-date">2011</span>
-                            <h3>Mis Inicios</h3>
+            <div class="cards-grid">
+                <div class="card-evento">
+                    <div class="card-header">
+                        <img src="./image/salon.jpg" alt="Salón de Eventos">
+                        <div class="icon-card-gold">
+                            <svg viewBox="0 0 24 24" width="30" height="30" fill="var(--lacre-color)">
+                                <path
+                                    d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                            </svg>
                         </div>
                     </div>
-                    <div class="carousel-card">
-                        <img src="./image/2.jpg" alt="Recuerdo 2">
-                        <div class="carousel-info">
-                            <span class="carousel-date">2018</span>
-                            <h3>Creciendo</h3>
+
+                    <div class="card-content">
+                        <h3>Recepción</h3>
+                        <p class="frase-evento">"Los momentos felices se vuelven inolvidables cuando se comparten con
+                            seres queridos."</p>
+
+                        <div class="info-evento">
+                            <p class="salon-name">Salón de Eventos "La Mansión"</p>
+                            <p class="salon-address">Calle Ficticia 123, Ciudad de San Juan</p>
+                            <p class="salon-time">Sábado 20 de Junio - 21:00 Horas</p>
                         </div>
-                    </div>
-                    <div class="carousel-card">
-                        <img src="./image/portada.jpg" alt="Recuerdo 3">
-                        <div class="carousel-info">
-                            <span class="carousel-date">2026</span>
-                            <h3>Mis 15</h3>
-                        </div>
+
+                        <a href="https://maps.google.com" target="_blank" class="btn-mapa">
+                            COMO LLEGAR
+                        </a>
                     </div>
                 </div>
-                <p class="carousel-hint">Desliza para ver más →</p>
             </div>
         </section>
+
+        <section class="calendario-section">
+            <div class="calendario-card">
+                <div class="calendar-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                </div>
+                <h2 class="intro-title" style="font-size: 1.8rem;">¡No te olvides!</h2>
+                <p class="intro-text">Agregá este momento a tu calendario para que no se te pase.</p>
+
+                <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Mis+15+Años+-+Fiesta&dates=20261024T210000Z/20261025T030000Z&details=¡Te+espero+para+compartir+una+noche+mágica!&location=Salón+de+Eventos"
+                    target="_blank" class="btn-lacre" style="text-decoration: none; display: inline-block;">
+                    Agendar Evento
+                </a>
+            </div>
+        </section>
+
+        <section class="dress-code-section">
+            <div class="dress-code-card">
+                <div class="dress-code-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path
+                            d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.62 1.96V21a1 1 0 001 1h18a1 1 0 001-1V5.42a2 2 0 00-1.62-1.96zM12 2v16M12 7l3 3M12 7l-3 3" />
+                    </svg>
+                </div>
+                <h2 class="intro-title" style="margin-bottom: 10px;">Código de Vestimenta</h2>
+                <h3 class="dress-code-type">ELEGANTE</h3>
+                <p class="intro-text" style="font-size: 1rem; margin-top: 10px;">
+                    Te agradecemos asistir con vestimenta formal para compartir esta noche mágica.
+                </p>
+            </div>
+        </section>
+
+        <section class="book-section">
+            <h2 class="intro-title">Mis Fotos</h2>
+            <p class="intro-text">Un pequeño adelanto de mi sesión de fotos</p>
+
+            <div class="gallery-container">
+                <div class="gallery-track">
+                    <div class="gallery-item"><img
+                            src="https://images.unsplash.com/photo-1549416878-b9ca35c2d47a?q=80&w=500&auto=format&fit=crop"
+                            alt="Modelo 1"></div>
+                    <div class="gallery-item"><img
+                            src="https://images.unsplash.com/photo-1523438885200-e635ba2c371e?q=80&w=500&auto=format&fit=crop"
+                            alt="Modelo 2"></div>
+                    <div class="gallery-item"><img
+                            src="https://images.unsplash.com/photo-1525253013412-55c1a69a5738?q=80&w=500&auto=format&fit=crop"
+                            alt="Modelo 3"></div>
+                    <div class="gallery-item"><img
+                            src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=500&auto=format&fit=crop"
+                            alt="Modelo 4"></div>
+                    <div class="gallery-item"><img
+                            src="https://images.unsplash.com/photo-1509633287939-2443217288a8?q=80&w=500&auto=format&fit=crop"
+                            alt="Modelo 5"></div>
+                    <div class="gallery-item"><img
+                            src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=500&auto=format&fit=crop"
+                            alt="Modelo 6"></div>
+                    <div class="gallery-item"><img
+                            src="https://images.unsplash.com/photo-1496302662116-35cc4f36df92?q=80&w=500&auto=format&fit=crop"
+                            alt="Modelo 7"></div>
+                    <div class="gallery-item"><img
+                            src="https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?q=80&w=500&auto=format&fit=crop"
+                            alt="Modelo 8"></div>
+                    <div class="gallery-item"><img
+                            src="https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?q=80&w=500&auto=format&fit=crop"
+                            alt="Modelo 9"></div>
+                    <div class="gallery-item"><img
+                            src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=500&auto=format&fit=crop"
+                            alt="Modelo 10"></div>
+                </div>
+                <p class="tap-instruction" style="margin-top: 15px;">Desliza para ver más →</p>
+            </div>
+        </section>
+
+        <section class="playlist-section">
+            <div class="playlist-card">
+                <div class="music-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                </div>
+                <h2 class="intro-title">¿Qué canción no puede faltar?</h2>
+                <p class="intro-text">¡Sugiérela aquí y la sumaremos a la lista de la fiesta!</p>
+
+                <form id="formMusica" class="form-group-music">
+                    <input type="text" id="nombreInvitado" name="nombre" placeholder="Tu nombre" required
+                        style="margin-bottom:10px;">
+                    <input type="text" id="cancionSugerida" name="cancion" placeholder="Canción y Artista..." required>
+                    <button type="submit" id="btnEnviarMusica" class="btn-lacre" style="margin-top: 20px;">
+                        Enviar a la Playlist
+                    </button>
+                </form>
+                <p id="mensajeExito" style="display:none; color: #2ecc71; margin-top: 15px; font-weight: bold;">
+                    ¡Sugerencia enviada con éxito! 🎶
+                </p>
+            </div>
+        </section>
+
+        <section class="hashtag-section">
+            <div class="hashtag-card">
+                <div class="insta-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                        <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"></path>
+                        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                    </svg>
+                </div>
+
+                <p class="intro-text" style="font-style: normal; margin-bottom: 5px;">¡Captura cada momento!</p>
+                <h2 class="hashtag-text">#Mis15Andrea</h2>
+
+                <p class="intro-text" style="font-size: 0.9rem; margin-top: 15px; margin-bottom: 20px;">
+                    No olvides etiquetarme en tus historias y fotos para que pueda compartirlas.
+                </p>
+
+                <a href="https://instagram.com/TU_USUARIO" target="_blank" class="btn-insta">
+                    @MIS-15
+                </a>
+            </div>
+        </section>
+
+        <section class="regalo-section">
+            <h2 class="intro-title">¿Deseas hacerme un regalo?</h2>
+
+            <p class="intro-text" style="margin-bottom: 10px;">
+                Tu presencia es mi mayor regalo, pero si deseas colaborar con mis sueños...
+            </p>
+
+            <p class="tap-instruction" style="margin-bottom: 20px; animation: bounce 2s infinite;">
+                ¡Presiona el regalo aquí!
+            </p>
+
+            <div class="regalo-container" onclick="abrirModalRegalo()">
+                <div class="gift-icon-wrapper">
+                    <div class="gift-box">
+                        <div class="gift-lid"></div>
+                        <div class="gift-body"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="confirmacion-section">
+            <h2 class="intro-title">¿Me acompañas?</h2>
+            <p class="intro-text">Para mí es muy importante contar con tu presencia.</p>
+            <button class="btn-lacre" onclick="abrirModal()">Confirmar Asistencia</button>
+        </section>
+
     </main>
 
-
-    <section class="cuando-donde">
-        <div class="timeline-intro">
-            <p class="intro-subtitle">¿DÓNDE CELEBRAMOS?</p>
-            <h2 class="intro-title">Lugar y Horario</h2>
-            <div class="hero-line"></div>
+    <div id="modalAsistencia" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-btn" onclick="cerrarModal()">×</span>
+            <h3 class="hero-main-name" style="font-size: 2.5rem; color: var(--lacre-oscuro); margin-bottom:10px;">
+                Asistencia</h3>
+            <form id="rsvpForm">
+                <div class="form-group">
+                    <label>Nombre y Apellido</label>
+                    <input type="text" id="nombre" required placeholder="Tu nombre completo">
+                </div>
+                <div class="form-group">
+                    <label>¿Asistiras?</label>
+                    <select id="asiste" required onchange="toggleInvitados()">
+                        <option value="si">¡Sí, ahí estaré!</option>
+                        <option value="no">Lo siento, no puedo</option>
+                    </select>
+                </div>
+                <div id="campoInvitados" class="form-group">
+                    <label>¿Cuántos son en total?</label>
+                    <input type="number" id="cantidad" min="1" value="1">
+                </div>
+                <div class="form-group">
+                    <label>Restricciones alimentarias</label>
+                    <input type="text" id="dieta" placeholder="Ej: Celíaco, Vegano, ninguno">
+                </div>
+                <button type="button" onclick="enviarWhatsApp()" class="btn-lacre">Enviar por WhatsApp</button>
+            </form>
         </div>
+    </div>
 
-        <div class="cards-grid">
-            <div class="card-evento">
-                <div class="card-header">
-                    <img src="./image/salon.jpg" alt="Salón de Eventos">
-                    <div class="icon-card-gold">
-                        <svg viewBox="0 0 24 24" width="30" height="30" fill="var(--lacre-color)">
-                            <path
-                                d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
-                        </svg>
-                    </div>
-                </div>
+    <div id="modalRegalo" class="modal-overlay">
+        <div class="modal-content">
+            <span class="close-btn" onclick="cerrarModalRegalo()">×</span>
+            <h3 class="hero-main-name" style="font-size: 2.2rem; color: var(--lacre-oscuro);">Mis Sueños</h3>
+            <p class="intro-text" style="font-size: 0.9rem;">Tu presencia es mi mayor regalo, pero si deseas colaborar
+                con mis sueños o mi viaje...</p>
 
-                <div class="card-content">
-                    <h3>Recepción</h3>
-                    <p class="frase-evento">"Los momentos felices se vuelven inolvidables cuando se comparten con seres
-                        queridos."</p>
+            <div class="alias-card">
+                <small>ALIAS</small>
+                <p id="alias-text">MIS.15.MAGIA</p>
+                <button class="btn-copy" onclick="copiarAlias()">COPIAR ALIAS</button>
+            </div>
 
-                    <div class="info-evento">
-                        <p class="salon-name">Salón de Eventos "La Mansión"</p>
-                        <p class="salon-address">Calle Ficticia 123, Ciudad de San Juan</p>
-                        <p class="salon-time">Sábado 20 de Junio - 21:00 Horas</p>
-                    </div>
+            <div class="cbu-info" style="margin-top: 20px; font-family: 'Montserrat'; font-size: 0.8rem; color: #666;">
+                <p>CBU: 0000003100012345678901</p>
+                <p>Banco: Santander / Nombre: Mi Nombre</p>
+            </div>
+        </div>
+    </div>
 
-                    <a href="https://maps.google.com" target="_blank" class="btn-mapa">
-                        COMO LLEGAR
-                    </a>
-                </div>
+    <section class="letter-section">
+        <div class="paper-envelope">
+            <div class="paper-content">
+                <p class="final-quote">
+                    "Gracias por ser parte de mi historia y por acompañarme en esta noche que guardaré siempre en mi
+                    corazón."
+                </p>
+                <p class="final-signature">Andrea</p>
             </div>
         </div>
     </section>
 
+    <footer class="developer-footer-v2">
+        <div class="footer-container">
+            <div class="dev-info">
+                <span class="dev-label">CREATIVE DEVELOPER</span>
+                <h4 class="dev-name">Alexander Baez</h4>
+                <p class="dev-description">Desarrollador Web</p>
+            </div>
+
+            <div class="dev-contact">
+                <div class="contact-links">
+                    <a href="https://wa.me/TUNUMERO" class="nav-link">WHATSAPP</a>
+                    <span class="nav-divider"></span>
+                    <a href="https://tuportfolio.com" class="nav-link">PORTFOLIO</a>
+                </div>
+                <p class="rights-text">© 2026 Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
     <script src="script.js"></script>
+
 </body>
 
 </html>

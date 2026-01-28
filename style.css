@@ -7,25 +7,14 @@
 }
 
 body, html {
-    margin: 0; padding: 0;
-    width: 100%;
-    background-color: var(--fondo-morado-claro);
-    /* TEXTURAS COMBINADAS: Papel arrugado + Flores y Mariposas */
-    background-image: 
-        url('https://www.transparenttextures.com/patterns/natural-paper.png'),
-        url('https://www.transparenttextures.com/patterns/flowers.png'); /* Patrón de flores y mariposas */
-    background-attachment: fixed;
-    font-family: 'Montserrat', sans-serif;
-    overflow-x: hidden;
+    margin: 0; padding: 0;width: 100%;background-color: var(--fondo-morado-claro);
+    /* TEXTURA: Papel arrugado */
+    background-image: url('https://www.transparenttextures.com/patterns/natural-paper.png');background-attachment: fixed;font-family: 'Montserrat', sans-serif;overflow-x: hidden;
 }
 
 /* --- SELLO Y OVERLAY --- */
 .overlay {
-    position: fixed; inset: 0; 
-    background-color: var(--fondo-morado-claro);
-    background-image: url('https://www.transparenttextures.com/patterns/natural-paper.png');
-    display: flex; justify-content: center; align-items: center; z-index: 10000;
-    transition: all 1.2s cubic-bezier(0.7, 0, 0.3, 1);
+    position: fixed; inset: 0; background-color: var(--fondo-morado-claro);background-image: url('https://www.transparenttextures.com/patterns/natural-paper.png');display: flex; justify-content: center; align-items: center; z-index: 10000;transition: all 1.2s cubic-bezier(0.7, 0, 0.3, 1);
 }
 .wax-seal-heart { position: relative; width: 150px; height: 130px; cursor: pointer; margin: 0 auto; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2)); }
 .wax-seal-heart::before, .wax-seal-heart::after {
@@ -47,26 +36,17 @@ body, html {
 
 /* --- CONTENIDO PRINCIPAL --- */
 .main-content {
-    opacity: 0;
-    transition: opacity 1.5s ease;
+    opacity: 0;transition: opacity 1.5s ease;
 }
 .main-content.visible { opacity: 1; }
 
 /* --- PORTADA (HERO) --- */
 .hero-section {
-    position: relative;
-    height: 100vh; width: 100%;
-    display: flex; align-items: center; justify-content: center;
-    overflow: hidden; background-color: #000;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-    margin-bottom: 50px;
+    position: relative;height: 100vh; width: 100%;display: flex; align-items: center; justify-content: center; overflow: hidden; background-color: #000; box-shadow: 0 10px 40px rgba(0,0,0,0.5); margin-bottom: 50px;
 }
 
 .hero-section::before {
-    content: ""; position: absolute; inset: 0;
-    background-image: url('./image/IMG-20230809-WA0145.jpg');
-    background-size: cover; background-position: center;
-    filter: blur(25px) brightness(0.4); z-index: 0;
+    content: ""; position: absolute; inset: 0; background-image: url('./image/IMG-20230809-WA0145.jpg');background-size: cover; background-position: center;filter: blur(25px) brightness(0.4); z-index: 0;
 }
 
 .hero-image-container { position: relative; height: 100%; width: 100%; z-index: 1; display: flex; justify-content: center; }
@@ -82,15 +62,8 @@ body, html {
 
 /* --- TARJETA DE CUENTA REGRESIVA --- */
 .countdown-card {
-    padding: 60px 20px;
-    margin: 40px auto 100px;
-    max-width: 700px;
-    background: rgba(255, 255, 255, 0.88); /* Más opaco para que resalte sobre las flores */
-    border-radius: 40px;
-    box-shadow: 0 20px 50px rgba(142, 68, 173, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(15px);
-    text-align: center;
+    padding: 60px 20px;margin: 40px auto 100px; max-width: 700px;background: rgba(255, 255, 255, 0.88); border-radius: 40px; box-shadow: 0 20px 50px rgba(142, 68, 173, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.7);backdrop-filter: blur(15px);text-align: center;
 }
 
 .intro-title { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--lacre-oscuro); margin-bottom: 20px; }
@@ -109,125 +82,57 @@ body, html {
 
 /* --- SECCIÓN RECORRIDO DE VIDA (TIMELINE) --- */
 .timeline-section {
-    padding: 100px 20px;
-    max-width: 1000px;
-    margin: 0 auto;
+    padding: 100px 20px; max-width: 1000px; margin: 0 auto;
 }
-
 .timeline-intro {
-    text-align: center;
-    margin-bottom: 60px;
+    text-align: center;margin-bottom: 60px;
 }
-
 .timeline-container {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 80px;
+    position: relative;display: flex; flex-direction: column; gap: 80px;
 }
 
-/* El hilo conductor de la línea de tiempo */
 .timeline-container::before {
-    content: '';
-    position: absolute;
-    left: 50%;
-    top: 0;
-    width: 1px;
-    height: 100%;
-    background: linear-gradient(to bottom, transparent, var(--oro), transparent);
-    z-index: 1;
+    content: ''; position: absolute; left: 50%; top: 0;width: 1px; height: 100%;
+    background: linear-gradient(to bottom, transparent, var(--oro), transparent);z-index: 1;
 }
-
 .timeline-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    position: relative;
-    z-index: 2;
+    display: flex;align-items: center;justify-content: space-between; width: 100%; position: relative; z-index: 2;
 }
 
-/* Alternar orden: Foto izquierda, Texto derecha y viceversa */
 .timeline-item:nth-child(even) {
     flex-direction: row-reverse;
 }
 
-/* --- MODIFICACIÓN PARA FOTOS COMPLETAS --- */
-
 .timeline-img-wrapper {
-    width: 45%;
-    position: relative;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 15px 35px rgba(0,0,0,0.15);
-    border: 5px solid white;
-    background: rgba(255, 255, 255, 0.5); /* Fondo sutil por si la foto es muy rara */
-    transition: transform 0.4s ease;
-    
-    /* Eliminamos el aspect-ratio fijo para que la foto mande en el tamaño */
-    height: auto; 
+    width: 45%; position: relative; border-radius: 20px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.15); border: 5px solid white; background: rgba(255, 255, 255, 0.5);
+    transition: transform 0.4s ease; height: auto; 
 }
 
 .timeline-photo {
-    width: 100%;
-    height: auto; /* La foto mantiene su proporción original */
-    display: block;
-    object-fit: contain; /* Asegura que se vea toda la imagen */
+    width: 100%; height: auto; display: block; object-fit: contain;
 }
 
-/* Ajuste para que el texto se alinee mejor con fotos de distintos tamaños */
-.timeline-item {
-    display: flex;
-    align-items: center; /* Centra el texto verticalmente respecto a la foto */
-    justify-content: space-between;
-    width: 100%;
-    position: relative;
-    z-index: 2;
-}
-
-/* Ajuste para el año en fotos de tamaño variable */
 .timeline-year {
-    position: absolute;
-    bottom: 15px;
-    right: 15px;
-    background: var(--lacre-color);
-    color: white;
-    padding: 6px 18px;
-    font-family: 'Montserrat', sans-serif;
-    font-size: 0.85rem;
-    font-weight: bold;
-    border-radius: 50px;
-    z-index: 10;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    position: absolute;  bottom: 15px; right: 15px; background: var(--lacre-color); color: white; padding: 6px 18px; font-family: 'Montserrat', sans-serif; font-size: 0.85rem;
+    font-weight: bold; border-radius: 50px; z-index: 10; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
-/* RESPONSIVE: En móviles la foto debe ser protagonista */
 @media (max-width: 768px) {
     .timeline-img-wrapper {
-        width: 100%;
-        margin-bottom: 10px;
+        width: 100%; margin-bottom: 10px;
     }
-    
     .timeline-photo {
-        max-height: 450px; /* Evita que fotos muy verticales sean infinitas en el celu */
-        object-fit: cover; /* En móvil, a veces conviene cover para no dejar huecos, pero si quieres 100% completa usa 'contain' */
+        max-height: 450px; object-fit: cover;
     }
 }
 
 /* --- CORRECCIÓN RELOJ RESPONSIVO --- */
 .countdown-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px; /* Reducido para móviles */
-    margin-top: 30px;
+    display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 30px;
 }
 
 .time-block span {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(1.8rem, 7vw, 4rem); /* Tamaño más flexible */
-    color: var(--lacre-color);
-    font-weight: bold;
+    font-family: 'Playfair Display', serif;  font-size: clamp(1.8rem, 7vw, 4rem); color: var(--lacre-color); font-weight: bold;
 }
 
 @media (max-width: 480px) {
@@ -236,207 +141,504 @@ body, html {
     .time-block small { font-size: 0.5rem; letter-spacing: 1px; }
 }
 
-/* --- SECCIÓN CARRUSEL (OPCIÓN 2) --- */
-.carousel-section {
-    padding: 80px 0;
-    overflow: hidden;
-}
-
-.carousel-container {
-    width: 100%;
-    padding: 0 20px;
-}
-
-.carousel-track {
-    display: flex;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    gap: 20px;
-    padding: 20px 0;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-}
-
-/* Escondemos la barra de scroll pero mantenemos la funcionalidad */
-.carousel-track::-webkit-scrollbar { display: none; }
-
-.carousel-card {
-    flex: 0 0 80%; /* En móviles se ve el 80% de la foto */
-    max-width: 400px;
-    scroll-snap-align: center;
-    background: white;
-    border-radius: 25px;
-    overflow: hidden;
-    box-shadow: 0 15px 30px rgba(0,0,0,0.1);
-    border: 1px solid rgba(255,255,255,0.5);
-    position: relative;
-}
-
-.carousel-card img {
-    width: 100%;
-    height: 450px;
-    object-fit: cover; /* Aquí sí usamos cover para uniformidad en el carrusel */
-    display: block;
-}
-
-.carousel-info {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 30px 20px;
-    background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
-    color: white;
-}
-
-.carousel-date {
-    background: var(--oro);
-    color: var(--lacre-oscuro);
-    padding: 4px 12px;
-    border-radius: 50px;
-    font-size: 0.8rem;
-    font-weight: bold;
-    font-family: 'Montserrat';
-}
-
-.carousel-info h3 {
-    margin: 10px 0 0;
-    font-family: 'Playfair Display';
-    font-size: 1.5rem;
-}
-
-.carousel-hint {
-    text-align: center;
-    font-size: 0.8rem;
-    color: var(--lacre-color);
-    margin-top: 15px;
-    font-family: 'Montserrat';
-    letter-spacing: 2px;
-    text-transform: uppercase;
-}
-
-@media (min-width: 768px) {
-    .carousel-card { flex: 0 0 350px; }
-    .carousel-track { justify-content: center; padding: 20px 40px; }
-}
-
-/* --- SECCIÓN CUANDO Y DONDE (ESTILO BODA) --- */
+/* --- SECCIÓN CUANDO Y DONDE --- */
 .cuando-donde { 
-    padding: 80px 20px; 
-    text-align: center; 
+    padding: 80px 20px;  text-align: center; 
 }
 
 .cards-grid { 
-    display: flex; 
-    justify-content: center; 
-    margin-top: 50px; 
+    display: flex;  justify-content: center;  margin-top: 50px; 
 }
 
 .card-evento { 
-    background: #fff; 
-    width: 100%; 
-    max-width: 400px; 
-    border-radius: 20px; 
-    box-shadow: 0 15px 45px rgba(0,0,0,0.1); 
-    overflow: visible; 
-    position: relative; 
-    border: 1px solid rgba(0,0,0,0.05); 
-    transition: transform 0.3s; 
+    background: #fff;  width: 100%;  max-width: 400px;  border-radius: 20px;  box-shadow: 0 15px 45px rgba(0,0,0,0.1);  overflow: visible;  position: relative;  border: 1px solid rgba(0,0,0,0.05);  transition: transform 0.3s; 
 }
-
 .card-evento:hover { 
     transform: translateY(-10px); 
 }
-
 .card-header { 
-    position: relative; 
-    height: 230px; 
+    position: relative; height: 230px; 
 }
 
 .card-header img { 
-    width: 100%; 
-    height: 100%; 
-    object-fit: cover; 
-    border-radius: 20px 20px 0 0; 
+    width: 100%;   height: 100%;  object-fit: cover;  border-radius: 20px 20px 0 0; 
 }
 
 .icon-card-gold { 
-    position: absolute; 
-    bottom: -30px; 
-    left: 50%; 
-    transform: translateX(-50%); 
-    background: #fff; 
-    width: 65px; 
-    height: 65px; 
-    border-radius: 50%; 
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1); 
-    z-index: 10; 
+    position: absolute;  bottom: -30px;  left: 50%;  transform: translateX(-50%);  background: #fff;  width: 65px;   height: 65px;   border-radius: 50%;   display: flex; 
+    align-items: center;  justify-content: center; box-shadow: 0 8px 20px rgba(0,0,0,0.1);  z-index: 10; 
 }
-
 .card-content { 
-    padding: 45px 25px 35px; 
-    text-align: center; 
+    padding: 45px 25px 35px;   text-align: center; 
 }
-
 .card-content h3 { 
-    font-family: 'Playfair Display', serif; 
-    color: var(--lacre-oscuro); 
-    font-size: 1.8rem;
-    margin-bottom: 10px; 
+    font-family: 'Playfair Display', serif;  color: var(--lacre-oscuro);  font-size: 1.8rem; margin-bottom: 10px; 
 }
-
 .frase-evento { 
-    font-style: italic; 
-    font-size: 0.95rem; 
-    color: #666; 
-    margin-bottom: 20px; 
-    min-height: 40px;
-    font-family: 'Playfair Display', serif;
+    font-style: italic;  font-size: 0.95rem;  color: #666;  margin-bottom: 20px;  min-height: 40px; font-family: 'Playfair Display', serif;
 }
-
 .info-evento { 
-    border-top: 1px solid #eee; 
-    border-bottom: 1px solid #eee; 
-    padding: 15px 0; 
-    margin-bottom: 25px; 
-}
-
-.info-evento p {
-    margin: 5px 0;
+    border-top: 1px solid #eee;  border-bottom: 1px solid #eee;  padding: 15px 0;  margin-bottom: 25px; 
 }
 
 .salon-name { font-weight: bold; color: var(--lacre-color); }
 .salon-address { font-size: 0.9rem; color: #777; }
 .salon-time { font-weight: 600; font-size: 1rem; color: var(--lacre-oscuro); }
 
-/* BOTÓN ADAPTADO */
 .btn-mapa { 
-    display: inline-block;
-    text-decoration: none;
-    background: transparent; 
-    border: 2px solid var(--lacre-color); 
-    color: var(--lacre-color); 
-    padding: 12px 30px; 
-    border-radius: 30px; 
-    cursor: pointer; 
-    font-weight: 600; 
-    transition: all 0.3s ease; 
-    text-transform: uppercase; 
-    font-family: 'Montserrat', sans-serif;
-    font-size: 0.8rem;
-    letter-spacing: 2px;
+    display: inline-block; text-decoration: none; background: transparent;  border: 2px solid var(--lacre-color);  color: var(--lacre-color);  padding: 12px 30px;  border-radius: 30px; 
+    font-weight: 600;  transition: all 0.3s ease;  text-transform: uppercase;  font-family: 'Montserrat', sans-serif; font-size: 0.8rem; letter-spacing: 2px;
 }
 
 .btn-mapa:hover { 
-    background-color: var(--lacre-color) !important; 
-    color: #ffffff !important; 
-    box-shadow: 0 5px 15px rgba(142, 68, 173, 0.3); 
+    background-color: var(--lacre-color);  color: #ffffff; 
 }
 
 @media (max-width: 480px) {
     .card-evento { margin: 0 15px; }
 }
 
+.confirmacion-section {
+    padding: 80px 20px; text-align: center;
+}
+
+.btn-lacre {
+    background: var(--lacre-color); color: white; border: none; padding: 15px 40px; font-family: 'Montserrat', sans-serif; font-size: 1rem; font-weight: bold; text-transform: uppercase;
+    letter-spacing: 2px; border-radius: 50px; cursor: pointer; box-shadow: 0 5px 15px rgba(142, 68, 173, 0.4); transition: all 0.3s ease;
+}
+.btn-lacre:hover {
+    background: var(--lacre-oscuro); transform: translateY(-3px);
+}
+
+/* Estilos del Modal */
+.modal-overlay {
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.7); display: none; /* Oculto por defecto */ justify-content: center;  align-items: center; z-index: 20000; backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    background: white; padding: 40px;  border-radius: 30px; width: 90%; max-width: 500px;  position: relative;  text-align: center;
+}
+
+.close-btn {
+    position: absolute; top: 20px; right: 25px; font-size: 2rem; cursor: pointer; color: var(--lacre-color);
+}
+
+.form-group {
+    margin-bottom: 20px; text-align: left;
+}
+
+.form-group label {
+    display: block; font-family: 'Montserrat', sans-serif; font-size: 0.9rem; margin-bottom: 8px; color: var(--lacre-oscuro); font-weight: 600;
+}
+
+.form-group input, .form-group select {
+    width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 10px; font-family: 'Montserrat', sans-serif;
+}
+#campoInvitados {
+    display: block; /* O 'none' si quieres que el select por defecto sea 'no' */ transition: all 0.3s ease;
+}
+
+/* --- DRESS CODE --- */
+.dress-code-section {
+    padding: 60px 20px; display: flex; justify-content: center;
+}
+
+.dress-code-card {
+    background: rgba(255, 255, 255, 0.7);  backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.5);  padding: 40px 30px;   border-radius: 40px;  max-width: 500px;  width: 100%;
+    text-align: center; box-shadow: 0 15px 35px rgba(142, 68, 173, 0.1);
+}
+
+.dress-code-icon {
+    width: 60px; height: 60px;  margin: 0 auto 20px;  color: var(--oro);
+}
+
+.dress-code-type {
+    font-family: 'Montserrat', sans-serif; letter-spacing: 5px; color: var(--lacre-oscuro); font-weight: bold;  font-size: 1.4rem;  margin: 0;
+}
+
+/* Efecto para que el ícono resalte */
+.dress-code-icon svg {
+    filter: drop-shadow(0 0 5px rgba(241, 196, 15, 0.5));
+}
+
+.regalo-section { padding: 40px 20px; text-align: center; }
+.regalo-container { cursor: pointer; display: inline-block; transition: transform 0.3s; }
+.regalo-container:hover { transform: scale(1.1); }
+
+/* Animación básica del regalo */
+.gift-box { position: relative; width: 60px; height: 50px; background: var(--lacre-color); margin: 0 auto; border-radius: 5px; }
+.gift-lid { position: absolute; top: -10px; left: -5px; width: 70px; height: 15px; background: var(--lacre-oscuro); border-radius: 3px; }
+.gift-body::after { content: ""; position: absolute; left: 25px; top: 0; width: 10px; height: 100%; background: var(--oro); }
+
+/* Estilo de la tarjeta de Alias */
+.alias-card {
+    background: var(--fondo-morado-claro);  padding: 20px;  border-radius: 15px; border: 2px dashed var(--oro); margin-top: 20px;
+}
+.alias-card p { font-size: 1.4rem; font-weight: bold; color: var(--lacre-oscuro); margin: 5px 0; letter-spacing: 1px; }
+.btn-copy {
+    background: var(--oro);  color: var(--lacre-oscuro); border: none;  padding: 8px 15px;  border-radius: 20px;  font-weight: bold;  cursor: pointer;  font-size: 0.7rem;  font-family: 'Montserrat';
+}
+
+/* Animación sutil para la instrucción */
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+    40% {transform: translateY(-5px);}
+    60% {transform: translateY(-3px);}
+}
+
+.regalo-section {
+    padding: 80px 20px; text-align: center;
+}
+
+.gift-box {
+    position: relative; width: 80px; /* Un poco más grande para que sea protagonista */  height: 70px; background: var(--lacre-color); margin: 0 auto; border-radius: 8px;
+    box-shadow: 0 10px 20px rgba(142, 68, 173, 0.3); transition: all 0.3s ease;
+}
+
+.gift-lid {
+    position: absolute; top: -12px;  left: -5px;  width: 90px;  height: 20px;  background: var(--lacre-oscuro);  border-radius: 4px;  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* El moño del regalo */
+.gift-body::after {
+    content: ""; position: absolute; left: 35px;  top: 0;  width: 12px;  height: 100%;  background: var(--oro);
+}
+
+.regalo-container:hover .gift-box {
+    transform: scale(1.1) rotate(3deg);
+}
+
+/* --- ESTILO PLAYLIST PROFESIONAL --- */
+.playlist-section {
+    padding: 80px 20px; text-align: center;
+}
+
+.playlist-card {
+    background: rgba(255, 255, 255, 0.75); backdrop-filter: blur(10px); padding: 50px 30px; border-radius: 40px;  max-width: 550px; margin: 0 auto; box-shadow: 0 20px 40px rgba(142, 68, 173, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.music-icon {
+    width: 80px; height: 80px;  margin: 0 auto 25px;  color: var(--lacre-color);
+    /* Animación de disco girando */
+    animation: rotateVinyl 8s linear infinite;
+}
+
+@keyframes rotateVinyl {
+    from { transform: rotate(0deg); } to { transform: rotate(360deg); }
+}
+
+.form-group-music {
+    display: flex;  flex-direction: column; gap: 12px; margin-top: 30px;
+}
+
+.form-group-music input {
+    padding: 15px 20px;  border: 1.5px solid #e1bee7; /* Un morado muy suave */ border-radius: 15px; font-family: 'Montserrat', sans-serif; font-size: 1rem; outline: none;
+    transition: all 0.3s ease; background: rgba(255, 255, 255, 0.9);  text-align: center;
+}
+
+.form-group-music input:focus {
+    border-color: var(--lacre-color); box-shadow: 0 0 10px rgba(142, 68, 173, 0.2); transform: translateY(-2px);
+}
+
+.form-group-music input::placeholder {
+    color: #b0b0b0; font-style: italic;
+}
+
+/* Reutilizamos y reforzamos el botón lacre para esta sección */
+.playlist-card .btn-lacre {
+    width: 100%; max-width: 300px; margin: 20px auto 0;
+}
+/* --- GALERÍA BOOK --- */
+.book-section {
+    padding: 60px 0; text-align: center;
+}
+.gallery-container {
+    width: 100%;  overflow: hidden; padding: 20px 0;
+}
+.gallery-track {
+    display: flex; overflow-x: auto; scroll-snap-type: x mandatory;  gap: 15px;  padding: 20px;  -webkit-overflow-scrolling: touch; /* Para que el swipe en iPhone sea suave */  scrollbar-width: none;
+}
+.gallery-track::-webkit-scrollbar {
+    display: none;
+}
+.gallery-item {
+    flex: 0 0 280px; /* Ancho fijo para que no se salgan */ height: 400px; scroll-snap-align: center; border-radius: 20px;  overflow: hidden;  border: 5px solid white;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+}
+
+.gallery-item img {
+    width: 100%; height: 100%;  object-fit: cover; /* Esto hace que la foto rellene el cuadro sin estirarse */  display: block;
+}
+
+/* --- HASHTAG --- */
+.hashtag-section {
+    padding: 40px 20px; text-align: center;
+}
+
+.hashtag-card {
+    background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px);  border-radius: 30px;  padding: 40px;  max-width: 500px;  margin: 0 auto;  border: 1px solid var(--oro);  box-shadow: 0 15px 30px rgba(142, 68, 173, 0.1);
+}
+
+.insta-icon {
+    width: 50px; height: 50px;  margin: 0 auto 15px;  color: var(--lacre-color);
+}
+
+.hashtag-text {
+    font-family: 'Playfair Display', serif; font-size: 2.2rem; color: var(--lacre-oscuro); margin: 0; background: linear-gradient(45deg, var(--lacre-color), var(--oro));  -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent; font-weight: bold;
+}
+
+.btn-insta {
+    display: inline-block; text-decoration: none;  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); /* Colores Insta suaves */
+    color: white; padding: 12px 25px; border-radius: 50px; font-family: 'Montserrat', sans-serif; font-weight: bold; font-size: 0.9rem; box-shadow: 0 10px 20px rgba(188, 24, 136, 0.2);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn-insta:hover {
+    transform: scale(1.05); box-shadow: 0 15px 25px rgba(188, 24, 136, 0.3);
+}
+
+/* Ajuste adicional para el texto del hashtag para que no se pegue */
+.hashtag-text {
+    margin: 10px 0 !important; display: block;
+}
+
+.calendario-section {
+    padding: 60px 20px; text-align: center;
+}
+
+.calendario-card {
+    background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px);  border-radius: 40px; padding: 40px;  max-width: 500px;  margin: 0 auto;  border: 1px solid var(--oro);  box-shadow: 0 15px 35px rgba(142, 68, 173, 0.1);
+}
+
+.calendar-icon {
+    width: 60px;  height: 60px;  margin: 0 auto 20px;  color: var(--lacre-oscuro);
+}
+
+#preloader {
+    position: fixed;  top: 0;  left: 0;  width: 100%;  height: 100%;  background: var(--lacre-oscuro); /* El morado que venimos usando */  display: flex;  justify-content: center;
+    align-items: center;  z-index: 9999;  transition: opacity 1s ease, visibility 1s;  color: var(--oro);
+}
+
+.loader-content { text-align: center; }
+
+.loader-circle {
+    width: 100px; height: 100px;  border: 3px solid transparent;  border-top: 3px solid var(--oro);  border-radius: 50%;  animation: spin 1s linear infinite;  margin: 0 auto 20px;
+}
+
+.loader-initials {
+    font-family: 'Playfair Display', serif; font-size: 2.5rem;  margin: 0;  letter-spacing: 5px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); }
+}
+
+/* Clase para ocultarlo */
+.loader-hidden {
+    opacity: 0;  visibility: hidden;
+}
+
+/* =========================================
+   CARTA DE AGRADECIMIENTO (EFECTO PAPEL)
+   ========================================= */
+.letter-section {
+    padding: 100px 20px;
+    background-color: var(--fondo-suave);
+    display: flex;
+    justify-content: center;
+}
+
+.paper-envelope {
+    background: #fffef9; /* Color papel marfil */
+    padding: 60px 40px;
+    max-width: 550px;
+    width: 100%;
+    position: relative;
+    text-align: center;
+    /* Sombra suave para dar profundidad */
+    box-shadow: 
+        3px 3px 15px rgba(0,0,0,0.03),
+        -1px -1px 5px rgba(0,0,0,0.01);
+    /* Efecto de textura arrugada sutil con gradientes */
+    background-image: 
+        linear-gradient(135deg, transparent 48%, rgba(0,0,0,0.02) 50%, transparent 52%),
+        linear-gradient(45deg, transparent 48%, rgba(0,0,0,0.01) 50%, transparent 52%);
+    background-size: 30px 30px;
+    transform: rotate(-0.5deg); /* Inclinación mínima para naturalidad */
+    border: 1px solid rgba(0,0,0,0.02);
+}
+
+/* Efecto decorativo de esquinas */
+.paper-envelope::before {
+    content: "";
+    position: absolute;
+    top: 10px; left: 10px; right: 10px; bottom: 10px;
+    border: 1px solid rgba(166, 124, 82, 0.1); /* Recuadro interno sutil */
+    pointer-events: none;
+}
+
+.final-quote {
+    font-family: var(--playfair);
+    font-size: 1.5rem;
+    font-style: italic;
+    color: #555;
+    line-height: 1.8;
+    margin-bottom: 25px;
+    font-weight: 300;
+}
+
+.final-signature {
+    font-family: var(--playfair);
+    font-size: 2.2rem;
+    color: var(--lacre-color);
+    letter-spacing: 2px;
+}
+
+
+/* =========================================
+   FOOTER ALEXANDER BAEZ - MINIMALISMO LUXURY
+   ========================================= */
+.developer-footer-v2 {
+    background-color: var(--fondo-suave); /* Volvemos al tono de la tarjeta */
+    color: var(--texto-oscuro);
+    padding: 100px 40px 60px;
+    font-family: var(--montserrat);
+    border-top: 1px solid rgba(166, 124, 82, 0.1); /* Línea lacre muy tenue */
+}
+
+.footer-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.dev-label {
+    font-size: 0.6rem;
+    letter-spacing: 4px;
+    color: var(--lacre-color);
+    display: block;
+    margin-bottom: 12px;
+    font-weight: 500;
+    opacity: 0.8;
+}
+
+.dev-name {
+    font-family: var(--playfair);
+    font-size: 1.8rem; /* Tamaño más discreto */
+    font-weight: 400;
+    margin-bottom: 15px;
+    letter-spacing: 1px;
+    color: var(--lacre-oscuro);
+}
+
+.dev-description {
+    font-size: 0.75rem;
+    color: #888;
+    max-width: 350px;
+    margin: 0 auto 40px;
+    font-weight: 300;
+    line-height: 1.6;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.contact-links {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+    margin-bottom: 40px;
+}
+
+.nav-link {
+    color: var(--lacre-color);
+    text-decoration: none;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border-bottom: 1px solid transparent;
+}
+
+.nav-link:hover {
+    color: var(--texto-oscuro);
+    border-bottom: 1px solid var(--lacre-color);
+}
+
+.nav-divider {
+    width: 30px;
+    height: 1px;
+    background: rgba(166, 124, 82, 0.2);
+}
+
+.rights-text {
+    font-size: 0.55rem;
+    letter-spacing: 2px;
+    color: #bbb;
+    text-transform: uppercase;
+}
+
+
+/* --- LÓGICA DE APARTADOS (MORADO CLARO VS MORADO LILA) --- */
+
+/* Definimos el segundo tono de morado clarito para alternar */
+:root {
+    --fondo-morado-alterno: #ebdef0; /* Un lila muy suave que combina con tu base */
+}
+
+/* 1. SECCIÓN CONTADOR: Mantiene el fondo base (morado clarito) */
+.countdown-card {
+    background-color: var(--fondo-morado-claro);
+    /* Quitamos el fondo blanco que tenía antes la tarjeta para que sea transparente */
+    background: transparent; 
+    box-shadow: none; 
+    border: none;
+    backdrop-filter: none;
+}
+
+/* 2. SECCIÓN TIMELINE: Cambia al segundo morado clarito */
+.timeline-section {
+    background-color: var(--fondo-morado-alterno);
+    padding-top: 80px;
+    padding-bottom: 80px;
+    /* Creamos una transición suave */
+    border-top: 1px solid rgba(142, 68, 173, 0.1);
+}
+
+/* 3. SECCIÓN CUANDO Y DONDE: Vuelve al morado clarito base */
+.cuando-donde {
+    background-color: var(--fondo-morado-claro);
+    padding-top: 80px;
+    padding-bottom: 80px;
+}
+
+/* 4. SECCIÓN CALENDARIO Y DRESS CODE: Usamos el morado alterno */
+.calendario-section, .dress-code-section {
+    background-color: var(--fondo-morado-alterno);
+    padding-top: 60px;
+    padding-bottom: 60px;
+}
+
+/* 5. SECCIÓN BOOK (FOTOS): Volvemos al base */
+.book-section {
+    background-color: var(--fondo-morado-claro);
+}
+
+/* 6. SECCIÓN PLAYLIST Y HASHTAG: Morado alterno */
+.playlist-section, .hashtag-section {
+    background-color: var(--fondo-morado-alterno);
+}
+
+/* 7. SECCIÓN REGALO Y CONFIRMACIÓN: Volvemos al base */
+.regalo-section, .confirmacion-section {
+    background-color: var(--fondo-morado-claro);
+}
+
+/* 8. CARTA FINAL: Morado alterno para cerrar */
+.letter-section {
+    background-color: var(--fondo-morado-alterno);
+}
