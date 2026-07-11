@@ -1,5 +1,5 @@
 // URL BASE DE TU API EN JAVA (Modificala cuando la subas a producción)
-const API_BASE_URL = 'http://localhost:8080/api'; 
+const API_BASE_URL = 'http://localhost:8080/api/v1';
 
 // Capturamos el token y el evento desde la URL (Ej: ?evento=valen-15&token=baez-789xyz)
 const urlParams = new URLSearchParams(window.location.search);
