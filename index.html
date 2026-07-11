@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
 
 <head>
     <meta charset="UTF-8">
@@ -294,7 +294,9 @@
         </section>
 
         <section class="regalo-section">
-            <h2 class="intro-title">¿Deseas hacerme un regalo?</h2>
+            <div class="timeline-intro">
+                <h2 class="intro-title">¿Deseas hacerme un regalo?</h2>
+            </div>
 
             <p class="intro-text" style="margin-bottom: 10px;">
                 Tu presencia es mi mayor regalo, pero si deseas colaborar con mis sueños...
@@ -322,6 +324,7 @@
 
     </main>
 
+    <!-- MODAL DE ASISTENCIA MODIFICADO CON THYMELEAF -->
     <div id="modalAsistencia" class="modal-overlay">
         <div class="modal-content">
             <span class="close-btn" onclick="cerrarModal()">×</span>
@@ -330,7 +333,8 @@
             <form id="rsvpForm">
                 <div class="form-group">
                     <label>Nombre y Apellido</label>
-                    <input type="text" id="nombre" required placeholder="Tu nombre completo">
+                    <!-- Nombre precargado automáticamente desde el Backend -->
+                    <input type="text" id="nombre" th:value="${invitado.nombre}" required placeholder="Tu nombre completo">
                 </div>
                 <div class="form-group">
                     <label>¿Asistiras?</label>
@@ -341,7 +345,14 @@
                 </div>
                 <div id="campoInvitados" class="form-group">
                     <label>¿Cuántos son en total?</label>
-                    <input type="number" id="cantidad" min="1" value="1">
+                    <!-- Se cambió el input por un select dinámico que itera desde 1 hasta el cupo máximo -->
+                    <select id="cantidad" class="tu-clase-de-estilo" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-family: 'Montserrat';">
+                        <option th:each="i : ${#numbers.sequence(1, invitado.cupoMaximoOtorgado)}" 
+                                th:value="${i}" 
+                                th:text="${i} == 1 ? '1 Persona' : ${i} + ' Personas'">
+                            1 Persona
+                        </option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <label>Restricciones alimentarias</label>
