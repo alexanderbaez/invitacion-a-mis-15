@@ -72,6 +72,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Construimos los campos del modal de Asistencia de forma predictiva
             armarEstructuraModalAsistencia(data);
+
+            // Apagamos el preloader solo si la sincronización del back fue exitosa
+            const preloader = document.getElementById("preloader");
+            if (preloader) preloader.classList.add("loader-hidden");
         })
         .catch(error => {
             console.error("Error crítico de sincronización:", error);
@@ -80,18 +84,37 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /**
- * 2️⃣ CONSTRUCTOR DINÁMICO DEL MODAL RSVP (Mesa de Entradas)
- * Evalúa si es NUMÉRICO (Select Plano) o NOMINAL (Inputs de texto repetitivos)
+ * 2️⃣ FUNCIÓN DE APERTURA GLOBAL (REPARA EL BUG DEL CORAZÓN)
+ */
+function abrirInvitacion() {
+    // 1. Removemos el Overlay / Sobre
+    const overlay = document.getElementById('overlay');
+    if (overlay) {
+        overlay.style.opacity = '0';
+        setTimeout(() => {
+            overlay.style.display = 'none';
+        }, 500); // Transición suave de salida
+    }
+
+    // 2. Encendemos la música de fondo aprovechando la interacción del usuario
+    const audio = document.getElementById('musicaFondo');
+    if (audio) {
+        audio.play().catch(error => {
+            console.log("La reproducción automática fue bloqueada o requiere interacción:", error);
+        });
+    }
+}
+
+/**
+ * 3️⃣ CONSTRUCTOR DINÁMICO DEL MODAL RSVP
  */
 function armarEstructuraModalAsistencia(invitado) {
     const contenedor = document.getElementById('contenedor-dinamico-rsvp');
     contenedor.innerHTML = ""; // Limpieza de seguridad
 
     if ("NOMINAL".equalsIgnoreCase(invitado.tipoInvitacion)) {
-        // Modo Nominal: Creamos la grilla para ingresar nombre y dieta por cada acompañante permitido
         let htmlAcompanantes = `<label style="margin-bottom:10px; display:block; font-weight:600;">Registrar Acompañantes Autorizados (Máx: ${invitado.cupoMaximoOtorgado - 1})</label>`;
         
-        // El bucle genera (cupoMaximo - 1) porque el cupo total incluye al Titular de la invitación
         for (let i = 1; i < invitado.cupoMaximoOtorgado; i++) {
             htmlAcompanantes += `
                 <div class="fila-acompanante" style="display:flex; gap:10px; margin-bottom:10px;">
@@ -102,11 +125,10 @@ function armarEstructuraModalAsistencia(invitado) {
         }
         contenedor.innerHTML = htmlAcompanantes;
     } else {
-        // Modo Numérico Ordinario: Pintamos el selector numérico tradicional limitado por el cupo otorgado
         let opcionesSelect = `<label>¿Cuántas personas asistirán en total?</label>
                               <select id="cantidad" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-family: 'Montserrat'; margin-top:5px;">`;
         for (let i = 1; i <= invitado.cupoMaximoOtorgado; i++) {
-            opcionesSelect += `<option value="${i}">${i} ${i === 1 ? 'Persona' : 'Personas'}</option>`;
+            optionsSelect = opcionesSelect + `<option value="${i}">${i} ${i === 1 ? 'Persona' : 'Personas'}</option>`;
         }
         opcionesSelect += `</select>`;
         contenedor.innerHTML = opcionesSelect;
@@ -114,7 +136,7 @@ function armarEstructuraModalAsistencia(invitado) {
 }
 
 /**
- * 3️⃣ CONTROL VISUAL SEGÚN SELECCIÓN (SI ASISTE / NO ASISTE)
+ * 4️⃣ CONTROL VISUAL SEGÚN SELECCIÓN (SI ASISTE / NO ASISTE)
  */
 function controlarDespliegueSegunAsistencia() {
     const asisteValue = document.getElementById('asiste').value;
@@ -123,7 +145,7 @@ function controlarDespliegueSegunAsistencia() {
 }
 
 /**
- * 4️⃣ ENVÍO ASÍNCRONO DEL RSVP Y REDIRECCIÓN A WHATSAPP
+ * 5️⃣ ENVÍO ASÍNCRONO DEL RSVP Y REDIRECCIÓN A WHATSAPP
  */
 function enviarWhatsApp() {
     const asisteValue = document.getElementById('asiste').value;
@@ -141,7 +163,6 @@ function enviarWhatsApp() {
 
     if (asisteValue === "si") {
         if (CONFIG_INVITADO.tipoInvitacion === "NOMINAL") {
-            // Mapeamos los inputs de acompañantes nominales generados en el DOM
             const filas = document.querySelectorAll('.fila-acompanante');
             filas.forEach(fila => {
                 const name = fila.querySelector('.ac-nombre').value.trim();
@@ -153,10 +174,9 @@ function enviarWhatsApp() {
                 }
             });
 
-            // Cantidad total = Titular (1) + Acompañantes validados
-            payloadRSVP.cantidadConfirmados = 1 + payloadRSVP.acompanantes.size;
+            // CORRECCIÓN MENTOR: .size es para Sets, los Arrays usan .length
+            payloadRSVP.cantidadConfirmados = 1 + payloadRSVP.acompanantes.length;
         } else {
-            // Modo Numérico ordinario
             const cantidadTotal = parseInt(document.getElementById('cantidad').value);
             payloadRSVP.cantidadConfirmados = cantidadTotal;
             resumenWhatsApp = `%0A👨‍👩‍👧‍👦 Seremos en total: *${cantidadTotal}* personas.`;
@@ -174,7 +194,6 @@ function enviarWhatsApp() {
         return response.json();
     })
     .then(res => {
-        // Disparamos la confirmación a WhatsApp
         const telefonoOrganizador = "549123456789"; // Configurable
         let mensajeWA = "";
 
@@ -202,7 +221,7 @@ function enviarWhatsApp() {
 }
 
 /**
- * 5️⃣ SUGERENCIAS DE MÚSICA CENTRALIZADAS
+ * 6️⃣ SUGERENCIAS DE MÚSICA CENTRALIZADAS
  */
 const form = document.getElementById('formMusica');
 if (form) {
@@ -240,7 +259,7 @@ if (form) {
 }
 
 /**
- * 6️⃣ AUXILIARES DE MODALES Y EFECTOS
+ * 7️⃣ AUXILIARES DE MODALES Y EFECTOS
  */
 function abrirModal() { document.getElementById('modalAsistencia').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
 function cerrarModal() { document.getElementById('modalAsistencia').style.display = 'none'; document.body.style.overflow = 'auto'; }
@@ -261,11 +280,6 @@ function copiarAlias() {
         }, 2000);
     });
 }
-
-window.addEventListener("load", function() {
-    const preloader = document.getElementById("preloader");
-    setTimeout(() => { if(preloader) preloader.classList.add("loader-hidden"); }, 1500);
-});
 
 // Extensión nativa útil para comparar strings ignorando mayúsculas
 String.prototype.equalsIgnoreCase = function (str) {
