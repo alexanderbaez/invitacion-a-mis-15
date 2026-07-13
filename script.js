@@ -7,32 +7,47 @@ const token = urlParams.get('token');
 const evento = urlParams.get('evento');
 
 /**
- * 🚀 NUEVO: Al cargar la página, validamos al invitado en el Backend si fuese necesario
+ * 🚀 SINCRO: Al cargar la página, validamos que existan los parámetros obligatorios.
+ * Si estás usando Thymeleaf para precargar los inputs, bloqueamos el nombre directamente.
  */
 document.addEventListener("DOMContentLoaded", () => {
-    if (token && evento) {
-        fetch(`${API_BASE_URL}/invitados/buscar?slug=${evento}&token=${token}`)
-            .then(response => {
-                if (!response.ok) throw new Error("Invitado no encontrado");
-                return response.json();
-            })
-            .then(invitado => {
-                // 1. Bloqueamos el input de nombre para que no pongan cualquier cosa
-                const inputNombre = document.getElementById('nombre');
-                if (inputNombre) {
-                    // Mantenemos el mapeo con la propiedad exacta de tu DTO de Java
-                    inputNombre.value = invitado.nombreInvitadoPrincipal;
-                    inputNombre.disabled = true; // No lo pueden editar
-                }
-                
-                // NOTA: El selector de cantidad ya viene limitado perfectamente desde el HTML 
-                // gracias al th:each de Thymeleaf con el cupo máximo del objeto.
-            })
-            .catch(error => {
-                console.error("Error cargando el invitado:", error);
-                alert("¡Atención! El enlace de la invitación no parece ser válido.");
-            });
+    const inputNombre = document.getElementById('nombre');
+    const inputNombreMusica = document.getElementById('nombreInvitado');
+    
+    // Si la URL no trae parámetros, evitamos el fetch fallido que te tira el alert
+    if (!token || !evento) {
+        console.warn("Faltan los parámetros 'token' o 'evento' en la URL. El flujo de confirmación asíncrono podría fallar.");
+        // Si el backend renderizó el nombre vía Thymeleaf, lo bloqueamos de igual manera
+        if (inputNombre && inputNombre.value.trim() !== "") {
+            inputNombre.disabled = true;
+            if (inputNombreMusica) inputNombreMusica.value = inputNombre.value;
+        }
+        return; 
     }
+
+    // Sincronizamos datos extra con tu DTO de Java
+    fetch(`${API_BASE_URL}/invitados/buscar?slug=${evento}&token=${token}`)
+        .then(response => {
+            if (!response.ok) throw new Error("Invitado no encontrado en la base de datos");
+            return response.json();
+        })
+        .then(invitado => {
+            // Mapeo dinámico: usa el campo exacto que devuelva tu Java DTO
+            const nombreFinal = invitado.nombre || invitado.nombreInvitadoPrincipal;
+
+            if (inputNombre && nombreFinal) {
+                inputNombre.value = nombreFinal;
+                inputNombre.disabled = true; // No lo pueden editar
+            }
+
+            if (inputNombreMusica && nombreFinal) {
+                inputNombreMusica.value = nombreFinal;
+            }
+        })
+        .catch(error => {
+            console.error("Error cargando el invitado desde la API:", error);
+            alert("¡Atención! El enlace de la invitación no parece ser válido o no se pudo verificar con el servidor.");
+        });
 });
 
 /**
@@ -78,7 +93,6 @@ const countdownX = setInterval(function() {
     const segundos = Math.floor((distancia % (1000 * 60)) / 1000);
 
     document.getElementById("days").innerText = dias < 10 ? "0" + dias : dias;
-    // CORREGIDO: Se cambió 'hours' por 'horas' para que coincida con la variable definida arriba
     document.getElementById("hours").innerText = horas < 10 ? "0" + horas : horas;
     document.getElementById("minutes").innerText = minutos < 10 ? "0" + minutos : minutos;
     document.getElementById("seconds").innerText = segundos < 10 ? "0" + segundos : segundos;
@@ -107,39 +121,45 @@ function enviarWhatsApp() {
     const asisteValue = document.getElementById('asiste').value;
     const cantidadValue = document.getElementById('cantidad').value;
     const dietaValue = document.getElementById('dieta').value || "Ninguna";
+    const nombreInvitado = document.getElementById('nombre').value; 
 
-    // Creamos el JSON con la estructura exacta que espera tu Backend
-    const datosConfirmacion = {
+    if (!token || !evento) {
+        alert("Error: No se puede confirmar la asistencia porque el enlace no contiene el token o evento correcto.");
+        return;
+    }
+
+    // Estructura exacta para tu @RequestBody en Java
+    const datosConfirmation = {
         asiste: asisteValue === "si",
         cantidadConfirmados: asisteValue === "si" ? parseInt(cantidadValue) : 0,
         dieta: asisteValue === "si" ? dietaValue : "Ninguna"
     };
 
-    // 1. Enviamos los datos a tu base de datos mediante Java
+    // 1. Guardamos de forma asíncrona en tu backend de Spring Boot
     fetch(`${API_BASE_URL}/invitados/confirmar?slug=${evento}&token=${token}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(datosConfirmacion)
+        body: JSON.stringify(datosConfirmation)
     })
     .then(response => {
         if (!response.ok) throw new Error("Error al guardar la confirmación");
         return response.json();
     })
     .then(invitadoGuardado => {
-        // 2. Si se guardó bien en el Back, procedemos a abrir el WhatsApp
+        // 2. Si el Back guardó con éxito, procedemos a abrir el WhatsApp
         const telefono = "549123456789"; 
         let mensaje = "";
         
         if (asisteValue === "si") {
             mensaje = `✨ *¡Confirmación de Asistencia!* ✨%0A%0A` +
-                      `Hola! Soy *${invitadoGuardado.nombreInvitadoPrincipal}* y quería confirmarte que...%0A` +
+                      `¡Hola! Soy *${nombreInvitado}* y quería confirmarte que...%0A` +
                       `🌟 *¡SÍ VOY A IR A TUS 15!* 🌟%0A%0A` +
                       `Somos en total: *${cantidadValue}* persona(s) 👨‍👩‍👧‍👦%0A` +
-                      `Observaciones: ${dietaValue}%0A%0A` +
+                      `Restricciones alimentarias: *${dietaValue}*%0A%0A` +
                       `¡Qué ganas de que llegue el día! 💖`;
         } else {
             mensaje = `✨ *Notificación de Invitación* ✨%0A%0A` +
-                      `Hola! Soy *${invitadoGuardado.nombreInvitadoPrincipal}*.%0A` +
+                      `¡Hola! Soy *${nombreInvitado}*.%0A` +
                       `Quería contarte que lamentablemente no podré asistir a tu fiesta 😔%0A` +
                       `¡Pero te deseo lo mejor en tu gran noche! ✨`;
         }
@@ -149,8 +169,8 @@ function enviarWhatsApp() {
         cerrarModal();
     })
     .catch(error => {
-        console.error("Error:", error);
-        alert("Hubo un problema al registrar tu asistencia en el sistema. Intentalo de nuevo.");
+        console.error("Error al sincronizar la asistencia:", error);
+        alert("Hubo un problema al registrar tu asistencia en el sistema. Por favor, inténtalo de nuevo.");
     });
 }
 
@@ -185,44 +205,55 @@ function copiarAlias() {
  * 🔄 MODIFICADO: Guarda la canción en tu Base de Datos por Java.
  */
 const form = document.getElementById('formMusica');
-form.addEventListener('submit', e => {
-    e.preventDefault();
-    const btn = document.getElementById('btnEnviarMusica');
-    btn.innerText = "Enviando...";
-    btn.disabled = true;
-
-    // Capturamos los datos del formulario de música (asumiendo IDs en tu HTML correspondientes)
-    const cancion = document.getElementById('cancionSugerida').value; 
-    const nombreOpt = document.getElementById('nombreInvitado').value; 
-
-    const payloadCancion = {
-        nombreCancion: cancion,
-        artista: nombreOpt // Pasás el nombre del que lo sugirió o artista según tu modelo
-    };
-
-    // Le pegamos al endpoint de canciones en Java
-    fetch(`${API_BASE_URL}/canciones?slug=${evento}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payloadCancion)
-    })
-    .then(response => {
-        if (!response.ok) throw new Error("Error al sugerir canción");
+if (form) {
+    form.addEventListener('submit', e => {
+        e.preventDefault();
         
-        btn.innerText = "Enviar a la Playlist";
-        btn.disabled = false;
-        document.getElementById('mensajeExito').style.display = 'block';
-        form.reset();
-        setTimeout(() => {
-            document.getElementById('mensajeExito').style.display = 'none';
-        }, 5000);
-    })
-    .catch(error => {
-        console.error('Error!', error);
-        alert("Hubo un error al enviar la canción a la base de datos.");
-        btn.disabled = false;
+        if (!evento) {
+            alert("No se puede enviar la sugerencia porque falta el identificador del evento.");
+            return;
+        }
+
+        const btn = document.getElementById('btnEnviarMusica');
+        btn.innerText = "Enviando...";
+        btn.disabled = true;
+
+        const cancion = document.getElementById('cancionSugerida').value; 
+        const nombreOpt = document.getElementById('nombreInvitado').value; 
+
+        const payloadCancion = {
+            nombreCancion: cancion,
+            artista: nombreOpt 
+        };
+
+        // Le pegamos al endpoint de canciones en Java
+        fetch(`${API_BASE_URL}/canciones?slug=${evento}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payloadCancion)
+        })
+        .then(response => {
+            if (!response.ok) throw new Error("Error al sugerir canción");
+            
+            btn.innerText = "Enviar a la Playlist";
+            btn.disabled = false;
+            document.getElementById('mensajeExito').style.display = 'block';
+            
+            // Limpiamos el campo de canción por si quieren sugerir otra
+            document.getElementById('cancionSugerida').value = "";
+            
+            setTimeout(() => {
+                document.getElementById('mensajeExito').style.display = 'none';
+            }, 5000);
+        })
+        .catch(error => {
+            console.error('Error!', error);
+            alert("Hubo un error al enviar la canción a la base de datos.");
+            btn.innerText = "Enviar a la Playlist";
+            btn.disabled = false;
+        });
     });
-});
+}
 
 window.addEventListener("load", function() {
     const preloader = document.getElementById("preloader");

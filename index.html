@@ -256,7 +256,7 @@
                 <p class="intro-text">¡Sugiérela aquí y la sumaremos a la lista de la fiesta!</p>
 
                 <form id="formMusica" class="form-group-music">
-                    <input type="text" id="nombreInvitado" name="nombre" placeholder="Tu nombre" required
+                    <input type="text" id="nombreInvitado" name="nombre" th:value="${invitado.nombre}" placeholder="Tu nombre" required
                         style="margin-bottom:10px;">
                     <input type="text" id="cancionSugerida" name="cancion" placeholder="Canción y Artista..." required>
                     <button type="submit" id="btnEnviarMusica" class="btn-lacre" style="margin-top: 20px;">
@@ -324,7 +324,6 @@
 
     </main>
 
-    <!-- MODAL DE ASISTENCIA MODIFICADO CON THYMELEAF -->
     <div id="modalAsistencia" class="modal-overlay">
         <div class="modal-content">
             <span class="close-btn" onclick="cerrarModal()">×</span>
@@ -333,7 +332,6 @@
             <form id="rsvpForm">
                 <div class="form-group">
                     <label>Nombre y Apellido</label>
-                    <!-- Nombre precargado automáticamente desde el Backend -->
                     <input type="text" id="nombre" th:value="${invitado.nombre}" required placeholder="Tu nombre completo">
                 </div>
                 <div class="form-group">
@@ -345,7 +343,6 @@
                 </div>
                 <div id="campoInvitados" class="form-group">
                     <label>¿Cuántos son en total?</label>
-                    <!-- Se cambió el input por un select dinámico que itera desde 1 hasta el cupo máximo -->
                     <select id="cantidad" class="tu-clase-de-estilo" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-family: 'Montserrat';">
                         <option th:each="i : ${#numbers.sequence(1, invitado.cupoMaximoOtorgado)}" 
                                 th:value="${i}" 
