@@ -1,13 +1,11 @@
 <!DOCTYPE html>
-<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mis 15 Años | Andrea</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Montserrat:wght@300;400;600&display=swap"
-        rel="stylesheet">
+    <title id="page-title">Cargando Invitación...</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght=0,400;0,700;1,400&family=Montserrat:wght=300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 
@@ -16,7 +14,7 @@
     <div id="preloader">
         <div class="loader-content">
             <div class="loader-circle"></div>
-            <h1 class="loader-initials">Andrea</h1>
+            <h1 class="loader-initials txt-anfitrion">Bienvenido</h1>
             <p>Cargando Magia...</p>
         </div>
     </div>
@@ -29,7 +27,7 @@
         <div class="envelope-wrapper">
             <div class="wax-seal-heart" onclick="abrirInvitacion()">
                 <div class="seal-content">
-                    <span class="initial">Andrea</span>
+                    <span class="initial txt-anfitrion">Abrir</span>
                 </div>
             </div>
             <p class="tap-instruction">TOCAR PARA ABRIR</p>
@@ -40,15 +38,15 @@
 
         <section class="hero-section">
             <div class="hero-image-container">
-                <img src="./image/portada.jpg" alt="Andrea" class="hero-photo">
+                <img src="./image/portada.jpg" alt="Portada" class="hero-photo">
                 <div class="hero-overlay-dark"></div>
             </div>
 
             <div class="hero-info-container">
-                <p class="hero-welcome">BIENVENIDOS A MIS 15 AÑOS</p>
-                <h1 class="hero-main-name">Andrea</h1>
+                <p class="hero-welcome">BIENVENIDOS A MI FIESTA</p>
+                <h1 class="hero-main-name txt-anfitrion">...</h1>
                 <div class="hero-line"></div>
-                <p class="hero-date-text">20 . JUNIO . 2026</p>
+                <p class="hero-date-text" id="txt-fecha-hero">...</p>
             </div>
         </section>
 
@@ -57,31 +55,18 @@
                 <p class="intro-subtitle">UN MOMENTO ESPERADO</p>
                 <h2 class="intro-title">Faltan solo...</h2>
                 <p class="intro-text">
-                    "Hay momentos que cambian la vida para siempre, y quiero compartirlos con las personas que más
-                    quiero."
+                    "Hay momentos que cambian la vida para siempre, y quiero compartirlos con las personas que más quiero."
                 </p>
             </div>
 
             <div id="countdown" class="countdown-container">
-                <div class="time-block">
-                    <span id="days">00</span>
-                    <small>DÍAS</small>
-                </div>
+                <div class="time-block"><span id="days">00</span><small>DÍAS</small></div>
                 <div class="time-divider">:</div>
-                <div class="time-block">
-                    <span id="hours">00</span>
-                    <small>HS</small>
-                </div>
+                <div class="time-block"><span id="hours">00</span><small>HS</small></div>
                 <div class="time-divider">:</div>
-                <div class="time-block">
-                    <span id="minutes">00</span>
-                    <small>MIN</small>
-                </div>
+                <div class="time-block"><span id="minutes">00</span><small>MIN</small></div>
                 <div class="time-divider">:</div>
-                <div class="time-block">
-                    <span id="seconds">00</span>
-                    <small>SEG</small>
-                </div>
+                <div class="time-block"><span id="seconds">00</span><small>SEG</small></div>
             </div>
         </section>
 
@@ -95,7 +80,7 @@
             <div class="timeline-container">
                 <div class="timeline-item">
                     <div class="timeline-img-wrapper">
-                        <img src="./image/1.jpg" alt="Mis primeros años" class="timeline-photo">
+                        <img src="./image/1.jpg" alt="Etapa 1" class="timeline-photo">
                         <div class="timeline-year">2011</div>
                     </div>
                     <div class="timeline-text">
@@ -106,7 +91,7 @@
 
                 <div class="timeline-item">
                     <div class="timeline-img-wrapper">
-                        <img src="./image/2.jpg" alt="Creciendo" class="timeline-photo">
+                        <img src="./image/2.jpg" alt="Etapa 2" class="timeline-photo">
                         <div class="timeline-year">2018</div>
                     </div>
                     <div class="timeline-text">
@@ -117,11 +102,11 @@
 
                 <div class="timeline-item">
                     <div class="timeline-img-wrapper">
-                        <img src="./image/portada.jpg" alt="Mis 15" class="timeline-photo">
+                        <img src="./image/portada.jpg" alt="Etapa 3" class="timeline-photo">
                         <div class="timeline-year">2026</div>
                     </div>
                     <div class="timeline-text">
-                        <h3>Mis 15 Años</h3>
+                        <h3>El Gran Día</h3>
                         <p>El comienzo de una nueva y hermosa etapa.</p>
                     </div>
                 </div>
@@ -141,26 +126,20 @@
                         <img src="./image/salon.jpg" alt="Salón de Eventos">
                         <div class="icon-card-gold">
                             <svg viewBox="0 0 24 24" width="30" height="30" fill="var(--lacre-color)">
-                                <path
-                                    d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
+                                <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" />
                             </svg>
                         </div>
                     </div>
 
                     <div class="card-content">
                         <h3>Recepción</h3>
-                        <p class="frase-evento">"Los momentos felices se vuelven inolvidables cuando se comparten con
-                            seres queridos."</p>
-
+                        <p class="frase-evento">"Los momentos felices se vuelven inolvidables cuando se comparten con seres queridos."</p>
                         <div class="info-evento">
                             <p class="salon-name">Salón de Eventos "La Mansión"</p>
                             <p class="salon-address">Calle Ficticia 123, Ciudad de San Juan</p>
-                            <p class="salon-time">Sábado 20 de Junio - 21:00 Horas</p>
+                            <p class="salon-time" id="txt-fecha-salon">Sábado 20 de Junio - 21:00 Horas</p>
                         </div>
-
-                        <a href="https://maps.google.com" target="_blank" class="btn-mapa">
-                            COMO LLEGAR
-                        </a>
+                        <a href="https://maps.google.com" target="_blank" class="btn-mapa">COMO LLEGAR</a>
                     </div>
                 </div>
             </div>
@@ -178,21 +157,15 @@
                 </div>
                 <h2 class="intro-title" style="font-size: 1.8rem;">¡No te olvides!</h2>
                 <p class="intro-text">Agregá este momento a tu calendario para que no se te pase.</p>
-
-                <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text=Mis+15+Años+-+Fiesta&dates=20261024T210000Z/20261025T030000Z&details=¡Te+espero+para+compartir+una+noche+mágica!&location=Salón+de+Eventos"
-                    target="_blank" class="btn-lacre" style="text-decoration: none; display: inline-block;">
-                    Agendar Evento
-                </a>
+                <a id="btn-gcalendar" href="#" target="_blank" class="btn-lacre" style="text-decoration: none; display: inline-block;">Agendar Evento</a>
             </div>
         </section>
 
         <section class="dress-code-section">
             <div class="dress-code-card">
                 <div class="dress-code-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round"
-                        stroke-linejoin="round">
-                        <path
-                            d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.62 1.96V21a1 1 0 001 1h18a1 1 0 001-1V5.42a2 2 0 00-1.62-1.96zM12 2v16M12 7l3 3M12 7l-3 3" />
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.62 1.96V21a1 1 0 001 1h18a1 1 0 001-1V5.42a2 2 0 00-1.62-1.96zM12 2v16M12 7l3 3M12 7l-3 3" />
                     </svg>
                 </div>
                 <h2 class="intro-title" style="margin-bottom: 10px;">Código de Vestimenta</h2>
@@ -206,39 +179,12 @@
         <section class="book-section">
             <h2 class="intro-title">Mis Fotos</h2>
             <p class="intro-text">Un pequeño adelanto de mi sesión de fotos</p>
-
             <div class="gallery-container">
                 <div class="gallery-track">
-                    <div class="gallery-item"><img
-                            src="https://images.unsplash.com/photo-1549416878-b9ca35c2d47a?q=80&w=500&auto=format&fit=crop"
-                            alt="Modelo 1"></div>
-                    <div class="gallery-item"><img
-                            src="https://images.unsplash.com/photo-1523438885200-e635ba2c371e?q=80&w=500&auto=format&fit=crop"
-                            alt="Modelo 2"></div>
-                    <div class="gallery-item"><img
-                            src="https://images.unsplash.com/photo-1525253013412-55c1a69a5738?q=80&w=500&auto=format&fit=crop"
-                            alt="Modelo 3"></div>
-                    <div class="gallery-item"><img
-                            src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=500&auto=format&fit=crop"
-                            alt="Modelo 4"></div>
-                    <div class="gallery-item"><img
-                            src="https://images.unsplash.com/photo-1509633287939-2443217288a8?q=80&w=500&auto=format&fit=crop"
-                            alt="Modelo 5"></div>
-                    <div class="gallery-item"><img
-                            src="https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=500&auto=format&fit=crop"
-                            alt="Modelo 6"></div>
-                    <div class="gallery-item"><img
-                            src="https://images.unsplash.com/photo-1496302662116-35cc4f36df92?q=80&w=500&auto=format&fit=crop"
-                            alt="Modelo 7"></div>
-                    <div class="gallery-item"><img
-                            src="https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?q=80&w=500&auto=format&fit=crop"
-                            alt="Modelo 8"></div>
-                    <div class="gallery-item"><img
-                            src="https://images.unsplash.com/photo-1533174072545-7a4b6ad7a6c3?q=80&w=500&auto=format&fit=crop"
-                            alt="Modelo 9"></div>
-                    <div class="gallery-item"><img
-                            src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=500&auto=format&fit=crop"
-                            alt="Modelo 10"></div>
+                    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1549416878-b9ca35c2d47a?q=80&w=500&auto=format&fit=crop" alt="Foto 1"></div>
+                    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1523438885200-e635ba2c371e?q=80&w=500&auto=format&fit=crop" alt="Foto 2"></div>
+                    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1525253013412-55c1a69a5738?q=80&w=500&auto=format&fit=crop" alt="Foto 3"></div>
+                    <div class="gallery-item"><img src="https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=500&auto=format&fit=crop" alt="Foto 4"></div>
                 </div>
                 <p class="tap-instruction" style="margin-top: 15px;">Desliza para ver más →</p>
             </div>
@@ -254,71 +200,44 @@
                 </div>
                 <h2 class="intro-title">¿Qué canción no puede faltar?</h2>
                 <p class="intro-text">¡Sugiérela aquí y la sumaremos a la lista de la fiesta!</p>
-
                 <form id="formMusica" class="form-group-music">
-                    <input type="text" id="nombreInvitado" name="nombre" th:value="${invitado.nombre}" placeholder="Tu nombre" required
-                        style="margin-bottom:10px;">
+                    <input type="text" id="nombreInvitado" name="nombre" placeholder="Tu nombre" required style="margin-bottom:10px;">
                     <input type="text" id="cancionSugerida" name="cancion" placeholder="Canción y Artista..." required>
-                    <button type="submit" id="btnEnviarMusica" class="btn-lacre" style="margin-top: 20px;">
-                        Enviar a la Playlist
-                    </button>
+                    <button type="submit" id="btnEnviarMusica" class="btn-lacre" style="margin-top: 20px;">Enviar a la Playlist</button>
                 </form>
-                <p id="mensajeExito" style="display:none; color: #2ecc71; margin-top: 15px; font-weight: bold;">
-                    ¡Sugerencia enviada con éxito! 🎶
-                </p>
+                <p id="mensajeExito" style="display:none; color: #2ecc71; margin-top: 15px; font-weight: bold;">¡Sugerencia enviada con éxito! 🎶</p>
             </div>
         </section>
 
         <section class="hashtag-section">
             <div class="hashtag-card">
                 <div class="insta-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                        stroke-linejoin="round">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
                         <path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z"></path>
                         <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
                     </svg>
                 </div>
-
                 <p class="intro-text" style="font-style: normal; margin-bottom: 5px;">¡Captura cada momento!</p>
-                <h2 class="hashtag-text">#Mis15Andrea</h2>
-
-                <p class="intro-text" style="font-size: 0.9rem; margin-top: 15px; margin-bottom: 20px;">
-                    No olvides etiquetarme en tus historias y fotos para que pueda compartirlas.
-                </p>
-
-                <a href="https://instagram.com/TU_USUARIO" target="_blank" class="btn-insta">
-                    @MIS-15
-                </a>
+                <h2 class="hashtag-text" id="txt-hashtag">#Mis15Andrea</h2>
+                <p class="intro-text" style="font-size: 0.9rem; margin-top: 15px; margin-bottom: 20px;">No olvides etiquetarme en tus historias y fotos para que pueda compartirlas.</p>
+                <a href="https://instagram.com" target="_blank" class="btn-insta">@VER_PERFIL</a>
             </div>
         </section>
 
         <section class="regalo-section">
-            <div class="timeline-intro">
-                <h2 class="intro-title">¿Deseas hacerme un regalo?</h2>
-            </div>
-
-            <p class="intro-text" style="margin-bottom: 10px;">
-                Tu presencia es mi mayor regalo, pero si deseas colaborar con mis sueños...
-            </p>
-
-            <p class="tap-instruction" style="margin-bottom: 20px; animation: bounce 2s infinite;">
-                ¡Presiona el regalo aquí!
-            </p>
-
+            <div class="timeline-intro"><h2 class="intro-title">¿Deseas hacerme un regalo?</h2></div>
+            <p class="intro-text" style="margin-bottom: 10px;">Tu presencia es mi mayor regalo, pero si deseas colaborar con mis sueños...</p>
+            <p class="tap-instruction" style="margin-bottom: 20px; animation: bounce 2s infinite;">¡Presiona el regalo aquí!</p>
             <div class="regalo-container" onclick="abrirModalRegalo()">
                 <div class="gift-icon-wrapper">
-                    <div class="gift-box">
-                        <div class="gift-lid"></div>
-                        <div class="gift-body"></div>
-                    </div>
+                    <div class="gift-box"><div class="gift-lid"></div><div class="gift-body"></div></div>
                 </div>
             </div>
         </section>
 
         <section class="confirmacion-section">
-            <h2 class="intro-title">¿Me acompañas?</h2>
-            <p class="intro-text">Para mí es muy importante contar con tu presencia.</p>
+            <div id="saludo-personalizado" style="margin-bottom: 20px;"></div>
             <button class="btn-lacre" onclick="abrirModal()">Confirmar Asistencia</button>
         </section>
 
@@ -327,35 +246,27 @@
     <div id="modalAsistencia" class="modal-overlay">
         <div class="modal-content">
             <span class="close-btn" onclick="cerrarModal()">×</span>
-            <h3 class="hero-main-name" style="font-size: 2.5rem; color: var(--lacre-oscuro); margin-bottom:10px;">
-                Asistencia</h3>
+            <h3 class="hero-main-name" style="font-size: 2.5rem; color: var(--lacre-oscuro); margin-bottom:10px;">Asistencia</h3>
             <form id="rsvpForm">
                 <div class="form-group">
-                    <label>Nombre y Apellido</label>
-                    <input type="text" id="nombre" th:value="${invitado.nombre}" required placeholder="Tu nombre completo">
+                    <label>Invitado Principal</label>
+                    <input type="text" id="nombre" required readonly>
                 </div>
                 <div class="form-group">
-                    <label>¿Asistiras?</label>
-                    <select id="asiste" required onchange="toggleInvitados()">
+                    <label>¿Asistirás?</label>
+                    <select id="asiste" required onchange="controlarDespliegueSegunAsistencia()">
                         <option value="si">¡Sí, ahí estaré!</option>
                         <option value="no">Lo siento, no puedo</option>
                     </select>
                 </div>
-                <div id="campoInvitados" class="form-group">
-                    <label>¿Cuántos son en total?</label>
-                    <select id="cantidad" class="tu-clase-de-estilo" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-family: 'Montserrat';">
-                        <option th:each="i : ${#numbers.sequence(1, invitado.cupoMaximoOtorgado)}" 
-                                th:value="${i}" 
-                                th:text="${i} == 1 ? '1 Persona' : ${i} + ' Personas'">
-                            1 Persona
-                        </option>
-                    </select>
-                </div>
+                
+                <div id="contenedor-dinamico-rsvp" class="form-group"></div>
+
                 <div class="form-group">
-                    <label>Restricciones alimentarias</label>
+                    <label>Restricciones alimentarias generales</label>
                     <input type="text" id="dieta" placeholder="Ej: Celíaco, Vegano, ninguno">
                 </div>
-                <button type="button" onclick="enviarWhatsApp()" class="btn-lacre">Enviar por WhatsApp</button>
+                <button type="button" onclick="enviarWhatsApp()" class="btn-lacre">Confirmar Asistencia</button>
             </form>
         </div>
     </div>
@@ -364,18 +275,15 @@
         <div class="modal-content">
             <span class="close-btn" onclick="cerrarModalRegalo()">×</span>
             <h3 class="hero-main-name" style="font-size: 2.2rem; color: var(--lacre-oscuro);">Mis Sueños</h3>
-            <p class="intro-text" style="font-size: 0.9rem;">Tu presencia es mi mayor regalo, pero si deseas colaborar
-                con mis sueños o mi viaje...</p>
-
+            <p class="intro-text" style="font-size: 0.9rem;">Tu presencia es mi mayor regalo, pero si deseas colaborar con mis sueños o mi viaje...</p>
             <div class="alias-card">
                 <small>ALIAS</small>
-                <p id="alias-text">MIS.15.MAGIA</p>
+                <p id="alias-text">CARGANDO...</p>
                 <button class="btn-copy" onclick="copiarAlias()">COPIAR ALIAS</button>
             </div>
-
             <div class="cbu-info" style="margin-top: 20px; font-family: 'Montserrat'; font-size: 0.8rem; color: #666;">
-                <p>CBU: 0000003100012345678901</p>
-                <p>Banco: Santander / Nombre: Mi Nombre</p>
+                <p id="txt-cbu">CBU: Cargando...</p>
+                <p>Titular del Evento</p>
             </div>
         </div>
     </div>
@@ -383,11 +291,8 @@
     <section class="letter-section">
         <div class="paper-envelope">
             <div class="paper-content">
-                <p class="final-quote">
-                    "Gracias por ser parte de mi historia y por acompañarme en esta noche que guardaré siempre en mi
-                    corazón."
-                </p>
-                <p class="final-signature">Andrea</p>
+                <p class="final-quote">"Gracias por ser parte de mi historia y por acompañarme en esta noche que guardaré siempre en mi corazón."</p>
+                <p class="final-signature txt-anfitrion">...</p>
             </div>
         </div>
     </section>
@@ -399,20 +304,16 @@
                 <h4 class="dev-name">Alexander Baez</h4>
                 <p class="dev-description">Desarrollador Web</p>
             </div>
-
             <div class="dev-contact">
                 <div class="contact-links">
-                    <a href="https://wa.me/TUNUMERO" class="nav-link">WHATSAPP</a>
+                    <a href="https://wa.me/549264..." class="nav-link">WHATSAPP</a>
                     <span class="nav-divider"></span>
-                    <a href="https://tuportfolio.com" class="nav-link">PORTFOLIO</a>
+                    <a href="#" class="nav-link">PORTFOLIO</a>
                 </div>
                 <p class="rights-text">© 2026 Todos los derechos reservados.</p>
             </div>
         </div>
     </footer>
-
     <script src="script.js"></script>
-
 </body>
-
 </html>

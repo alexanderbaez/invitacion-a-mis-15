@@ -1,218 +1,214 @@
-// URL BASE DE TU API EN JAVA (Modificala cuando la subas a producción)
+// URL BASE DEL BACKEND CENTRALIZADO EN SPRING BOOT
 const API_BASE_URL = 'http://localhost:8080/api/v1';
 
-// Capturamos el token y el evento desde la URL (Ej: ?evento=valen-15&token=baez-789xyz)
+// Capturamos las variables del inquilino desde la URL (?evento=valen-15&token=baez-789xyz)
 const urlParams = new URLSearchParams(window.location.search);
 const token = urlParams.get('token');
-const evento = urlParams.get('evento');
+const eventoSlug = urlParams.get('evento');
+
+// Variables globales para retener la configuración del invitado que vino del Back
+let CONFIG_INVITADO = null;
+let EVENTO_ID = null;
 
 /**
- * 🚀 SINCRO: Al cargar la página, validamos que existan los parámetros obligatorios.
- * Si estás usando Thymeleaf para precargar los inputs, bloqueamos el nombre directamente.
+ * 1️⃣ INICIALIZACIÓN DINÁMICA DE LA TARJETA
  */
 document.addEventListener("DOMContentLoaded", () => {
-    const inputNombre = document.getElementById('nombre');
-    const inputNombreMusica = document.getElementById('nombreInvitado');
-    
-    // Si la URL no trae parámetros, evitamos el fetch fallido que te tira el alert
-    if (!token || !evento) {
-        console.warn("Faltan los parámetros 'token' o 'evento' en la URL. El flujo de confirmación asíncrono podría fallar.");
-        // Si el backend renderizó el nombre vía Thymeleaf, lo bloqueamos de igual manera
-        if (inputNombre && inputNombre.value.trim() !== "") {
-            inputNombre.disabled = true;
-            if (inputNombreMusica) inputNombreMusica.value = inputNombre.value;
-        }
-        return; 
+    if (!token || !eventoSlug) {
+        console.error("Acceso Inválido: Enlace sin parámetros de identificación.");
+        alert("¡Atención! El enlace de la invitación no parece ser válido.");
+        return;
     }
 
-    // Sincronizamos datos extra con tu DTO de Java
-    fetch(`${API_BASE_URL}/invitados/buscar?slug=${evento}&token=${token}`)
+    // Consultamos al Backend Maestro por los datos de este inquilino y este invitado
+    fetch(`${API_BASE_URL}/invitados/buscar?slug=${eventoSlug}&token=${token}`)
         .then(response => {
-            if (!response.ok) throw new Error("Invitado no encontrado en la base de datos");
+            if (!response.ok) throw new Error("Token o Evento inexistente.");
             return response.json();
         })
-        .then(invitado => {
-            // Mapeo dinámico: usa el campo exacto que devuelva tu Java DTO
-            const nombreFinal = invitado.nombre || invitado.nombreInvitadoPrincipal;
+        .then(data => {
+            CONFIG_INVITADO = data;
+            EVENTO_ID = data.evento.id;
 
-            if (inputNombre && nombreFinal) {
-                inputNombre.value = nombreFinal;
-                inputNombre.disabled = true; // No lo pueden editar
-            }
+            // --- INYECTAR DATOS DEL EVENTO (CAMALEÓN) ---
+            const nombreAnfitrion = data.evento.nombreAnfitrion;
+            document.title = `Invitación Oficial | ${nombreAnfitrion}`;
+            
+            // Inyección masiva de textos de anfitrión
+            document.querySelectorAll('.txt-anfitrion').forEach(el => el.innerText = nombreAnfitrion);
+            
+            // Modificamos el Hashtag dinámicamente
+            document.getElementById('txt-hashtag').innerText = `#${nombreAnfitrion.replace(/\s+/g, '')}2026`;
 
-            if (inputNombreMusica && nombreFinal) {
-                inputNombreMusica.value = nombreFinal;
-            }
+            // Formatear Fecha
+            const fechaData = new Date(data.evento.fechaEvento);
+            const opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const fechaFormateada = fechaData.toLocaleDateString('es-ES', opcionesFecha);
+            
+            document.getElementById('txt-fecha-hero').innerText = fechaFormateada.toUpperCase();
+            document.getElementById('txt-fecha-salon').innerText = `${fechaFormateada} - 21:00 Horas`;
+
+            // Configurar botón de Google Calendar
+            const gCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Fiesta+de+${encodeURIComponent(nombreAnfitrion)}&details=¡Te+espero+para+compartir+una+noche+mágica!`;
+            document.getElementById('btn-gcalendar').href = gCalUrl;
+
+            // Datos Financieros de la Quinceañera/Novios
+            document.getElementById('alias-text').innerText = data.evento.aliasCbu || "NO_ASIGNADO";
+            document.getElementById('txt-cbu').innerText = `CBU/Datos: ${data.evento.aliasCbu || 'Consultar con el organizador.'}`;
+
+            // --- INYECTAR DATOS DEL INVITADO PRINCIPAL ---
+            document.getElementById('nombre').value = data.nombreInvitadoPrincipal;
+            document.getElementById('nombreInvitado').value = data.nombreInvitadoPrincipal; // Input de Música
+
+            // Mensaje de Bienvenida personalizado arriba del botón RSVP
+            document.getElementById('saludo-personalizado').innerHTML = `
+                <h3 style="font-family: 'Playfair Display'; font-size: 1.6rem; color: var(--lacre-oscuro); text-align:center;">
+                    ¡Hola ${data.nombreInvitadoPrincipal}!
+                </h3>
+                <p class="intro-text" style="text-align:center; font-size:1rem; margin-top:5px;">
+                    Nos encantaría tenerte con nosotros para disfrutar de esta gran noche.
+                </p>
+            `;
+
+            // Construimos los campos del modal de Asistencia de forma predictiva
+            armarEstructuraModalAsistencia(data);
         })
         .catch(error => {
-            console.error("Error cargando el invitado desde la API:", error);
-            alert("¡Atención! El enlace de la invitación no parece ser válido o no se pudo verificar con el servidor.");
+            console.error("Error crítico de sincronización:", error);
+            alert("Error de conexión: No se pudo validar la invitación con el servidor.");
         });
 });
 
 /**
- * Lógica para la apertura de la invitación y música
+ * 2️⃣ CONSTRUCTOR DINÁMICO DEL MODAL RSVP (Mesa de Entradas)
+ * Evalúa si es NUMÉRICO (Select Plano) o NOMINAL (Inputs de texto repetitivos)
  */
-function abrirInvitacion() {
-    const audio = document.getElementById('musicaFondo');
-    const overlay = document.getElementById('overlay');
-    const content = document.getElementById('main-content');
+function armarEstructuraModalAsistencia(invitado) {
+    const contenedor = document.getElementById('contenedor-dinamico-rsvp');
+    contenedor.innerHTML = ""; // Limpieza de seguridad
 
-    if (audio) {
-        audio.play().catch(error => {
-            console.log("La reproducción automática fue bloqueada por el navegador.");
-        });
+    if ("NOMINAL".equalsIgnoreCase(invitado.tipoInvitacion)) {
+        // Modo Nominal: Creamos la grilla para ingresar nombre y dieta por cada acompañante permitido
+        let htmlAcompanantes = `<label style="margin-bottom:10px; display:block; font-weight:600;">Registrar Acompañantes Autorizados (Máx: ${invitado.cupoMaximoOtorgado - 1})</label>`;
+        
+        // El bucle genera (cupoMaximo - 1) porque el cupo total incluye al Titular de la invitación
+        for (let i = 1; i < invitado.cupoMaximoOtorgado; i++) {
+            htmlAcompanantes += `
+                <div class="fila-acompanante" style="display:flex; gap:10px; margin-bottom:10px;">
+                    <input type="text" class="ac-nombre" placeholder="Nombre Acompañante ${i}" style="flex:2; padding:8px; border-radius:5px; border:1px solid #ccc;">
+                    <input type="text" class="ac-dieta" placeholder="Dieta (opcional)" style="flex:1; padding:8px; border-radius:5px; border:1px solid #ccc;">
+                </div>
+            `;
+        }
+        contenedor.innerHTML = htmlAcompanantes;
+    } else {
+        // Modo Numérico Ordinario: Pintamos el selector numérico tradicional limitado por el cupo otorgado
+        let opcionesSelect = `<label>¿Cuántas personas asistirán en total?</label>
+                              <select id="cantidad" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-family: 'Montserrat'; margin-top:5px;">`;
+        for (let i = 1; i <= invitado.cupoMaximoOtorgado; i++) {
+            opcionesSelect += `<option value="${i}">${i} ${i === 1 ? 'Persona' : 'Personas'}</option>`;
+        }
+        opcionesSelect += `</select>`;
+        contenedor.innerHTML = opcionesSelect;
     }
-
-    overlay.classList.add('hidden');
-
-    setTimeout(() => {
-        content.classList.add('visible');
-        document.body.style.overflow = 'auto';
-    }, 800);
 }
 
 /**
- * Lógica de la Cuenta Regresiva
+ * 3️⃣ CONTROL VISUAL SEGÚN SELECCIÓN (SI ASISTE / NO ASISTE)
  */
-const fechaFiesta = new Date("June 20, 2026 21:00:00").getTime();
-
-const countdownX = setInterval(function() {
-    const ahora = new Date().getTime();
-    const distancia = fechaFiesta - ahora;
-
-    if (distancia < 0) {
-        clearInterval(countdownX);
-        document.getElementById("countdown").innerHTML = "<h3 style='font-family: Playfair Display; color: var(--lacre-color);'>¡HOY ES EL GRAN DÍA!</h3>";
-        return;
-    }
-
-    const dias = Math.floor(distancia / (1000 * 60 * 60 * 24));
-    const horas = Math.floor((distancia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutos = Math.floor((distancia % (1000 * 60 * 60)) / (1000 * 60));
-    const segundos = Math.floor((distancia % (1000 * 60)) / 1000);
-
-    document.getElementById("days").innerText = dias < 10 ? "0" + dias : dias;
-    document.getElementById("hours").innerText = horas < 10 ? "0" + horas : horas;
-    document.getElementById("minutes").innerText = minutos < 10 ? "0" + minutos : minutos;
-    document.getElementById("seconds").innerText = segundos < 10 ? "0" + segundos : segundos;
-}, 1000);
-
-function abrirModal() {
-    document.getElementById('modalAsistencia').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-}
-
-function cerrarModal() {
-    document.getElementById('modalAsistencia').style.display = 'none';
-    document.body.style.overflow = 'auto';
-}
-
-function toggleInvitados() {
-    const asiste = document.getElementById('asiste').value;
-    const campo = document.getElementById('campoInvitados');
-    campo.style.display = (asiste === 'si') ? 'block' : 'none';
+function controlarDespliegueSegunAsistencia() {
+    const asisteValue = document.getElementById('asiste').value;
+    const contenedor = document.getElementById('contenedor-dinamico-rsvp');
+    contenedor.style.display = (asisteValue === 'si') ? 'block' : 'none';
 }
 
 /**
- * 🔄 MODIFICADO: Guarda la asistencia en Java y luego abre el WhatsApp
+ * 4️⃣ ENVÍO ASÍNCRONO DEL RSVP Y REDIRECCIÓN A WHATSAPP
  */
 function enviarWhatsApp() {
     const asisteValue = document.getElementById('asiste').value;
-    const cantidadValue = document.getElementById('cantidad').value;
-    const dietaValue = document.getElementById('dieta').value || "Ninguna";
-    const nombreInvitado = document.getElementById('nombre').value; 
+    const dietaGeneral = document.getElementById('dieta').value || "Ninguna";
+    const nombreInvitado = document.getElementById('nombre').value;
 
-    if (!token || !evento) {
-        alert("Error: No se puede confirmar la asistencia porque el enlace no contiene el token o evento correcto.");
-        return;
-    }
-
-    // Estructura exacta para tu @RequestBody en Java
-    const datosConfirmation = {
+    let payloadRSVP = {
         asiste: asisteValue === "si",
-        cantidadConfirmados: asisteValue === "si" ? parseInt(cantidadValue) : 0,
-        dieta: asisteValue === "si" ? dietaValue : "Ninguna"
+        dieta: asisteValue === "si" ? dietaGeneral : "Ninguna",
+        cantidadConfirmados: 0,
+        acompanantes: []
     };
 
-    // 1. Guardamos de forma asíncrona en tu backend de Spring Boot
-    fetch(`${API_BASE_URL}/invitados/confirmar?slug=${evento}&token=${token}`, {
+    let resumenWhatsApp = "";
+
+    if (asisteValue === "si") {
+        if (CONFIG_INVITADO.tipoInvitacion === "NOMINAL") {
+            // Mapeamos los inputs de acompañantes nominales generados en el DOM
+            const filas = document.querySelectorAll('.fila-acompanante');
+            filas.forEach(fila => {
+                const name = fila.querySelector('.ac-nombre').value.trim();
+                const restriction = fila.querySelector('.ac-dieta').value.trim() || "Ninguna";
+                
+                if (name !== "") {
+                    payloadRSVP.acompanantes.push({ nombre: name, dieta: restriction });
+                    resumenWhatsApp += `%0A• *${name}* (Dieta: ${restriction})`;
+                }
+            });
+
+            // Cantidad total = Titular (1) + Acompañantes validados
+            payloadRSVP.cantidadConfirmados = 1 + payloadRSVP.acompanantes.size;
+        } else {
+            // Modo Numérico ordinario
+            const cantidadTotal = parseInt(document.getElementById('cantidad').value);
+            payloadRSVP.cantidadConfirmados = cantidadTotal;
+            resumenWhatsApp = `%0A👨‍👩‍👧‍👦 Seremos en total: *${cantidadTotal}* personas.`;
+        }
+    }
+
+    // Guardado de Estado Asíncrono en Base de Datos de Spring Boot
+    fetch(`${API_BASE_URL}/invitados/confirmar?slug=${eventoSlug}&token=${token}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(datosConfirmation)
+        body: JSON.stringify(payloadRSVP)
     })
     .then(response => {
-        if (!response.ok) throw new Error("Error al guardar la confirmación");
+        if (!response.ok) throw new Error("Error en persistencia.");
         return response.json();
     })
-    .then(invitadoGuardado => {
-        // 2. Si el Back guardó con éxito, procedemos a abrir el WhatsApp
-        const telefono = "549123456789"; 
-        let mensaje = "";
-        
+    .then(res => {
+        // Disparamos la confirmación a WhatsApp
+        const telefonoOrganizador = "549123456789"; // Configurable
+        let mensajeWA = "";
+
         if (asisteValue === "si") {
-            mensaje = `✨ *¡Confirmación de Asistencia!* ✨%0A%0A` +
-                      `¡Hola! Soy *${nombreInvitado}* y quería confirmarte que...%0A` +
-                      `🌟 *¡SÍ VOY A IR A TUS 15!* 🌟%0A%0A` +
-                      `Somos en total: *${cantidadValue}* persona(s) 👨‍👩‍👧‍👦%0A` +
-                      `Restricciones alimentarias: *${dietaValue}*%0A%0A` +
-                      `¡Qué ganas de que llegue el día! 💖`;
+            mensajeWA = `✨ *¡Confirmación de Asistencia!* ✨%0A%0A` +
+                        `¡Hola! Soy *${nombreInvitado}* y quería confirmarte que...%0A` +
+                        `🌟 *¡SÍ VAMOS A IR A TU FIESTA!* 🌟%0A%0A` +
+                        `Detalle de Asistencia:${resumenWhatsApp}%0A` +
+                        `Restricciones generales: *${payloadRSVP.dieta}*%0A%0A` +
+                        `¡Nos vemos muy pronto! 💖`;
         } else {
-            mensaje = `✨ *Notificación de Invitación* ✨%0A%0A` +
-                      `¡Hola! Soy *${nombreInvitado}*.%0A` +
-                      `Quería contarte que lamentablemente no podré asistir a tu fiesta 😔%0A` +
-                      `¡Pero te deseo lo mejor en tu gran noche! ✨`;
+            mensajeWA = `✨ *Notificación de Invitación* ✨%0A%0A` +
+                        `¡Hola! Soy *${nombreInvitado}*.%0A` +
+                        `Quería comentarte que lamentablemente no podremos asistir a tu evento 😔%0A` +
+                        `¡Te deseamos el mayor de los éxitos en tu gran noche! ✨`;
         }
 
-        const url = `https://api.whatsapp.com/send?phone=${telefono}&text=${mensaje}`;
-        window.open(url, '_blank');
+        window.open(`https://api.whatsapp.com/send?phone=${telefonoOrganizador}&text=${mensajeWA}`, '_blank');
         cerrarModal();
     })
     .catch(error => {
-        console.error("Error al sincronizar la asistencia:", error);
-        alert("Hubo un problema al registrar tu asistencia en el sistema. Por favor, inténtalo de nuevo.");
-    });
-}
-
-function abrirModalRegalo() {
-    document.getElementById('modalRegalo').style.display = 'flex';
-    document.body.style.overflow = 'hidden';
-}
-
-function cerrarModalRegalo() {
-    document.getElementById('modalRegalo').style.display = 'none';
-    document.body.style.overflow = 'auto';
-}
-
-function copiarAlias() {
-    const alias = document.getElementById('alias-text').innerText;
-    navigator.clipboard.writeText(alias).then(() => {
-        const btn = document.querySelector('.btn-copy');
-        const originalText = btn.innerText;
-        btn.innerText = "¡COPIADO!";
-        btn.style.background = "#2ecc71";
-        btn.style.color = "white";
-        
-        setTimeout(() => {
-            btn.innerText = originalText;
-            btn.style.background = "var(--oro)";
-            btn.style.color = "var(--lacre-oscuro)";
-        }, 2000);
+        console.error("Error al registrar RSVP:", error);
+        alert("Hubo un inconveniente al registrar tu asistencia en el servidor. Reinténtalo.");
     });
 }
 
 /**
- * 🔄 MODIFICADO: Guarda la canción en tu Base de Datos por Java.
+ * 5️⃣ SUGERENCIAS DE MÚSICA CENTRALIZADAS
  */
 const form = document.getElementById('formMusica');
 if (form) {
     form.addEventListener('submit', e => {
         e.preventDefault();
-        
-        if (!evento) {
-            alert("No se puede enviar la sugerencia porque falta el identificador del evento.");
-            return;
-        }
+        if (!EVENTO_ID) return;
 
         const btn = document.getElementById('btnEnviarMusica');
         btn.innerText = "Enviando...";
@@ -221,43 +217,57 @@ if (form) {
         const cancion = document.getElementById('cancionSugerida').value; 
         const nombreOpt = document.getElementById('nombreInvitado').value; 
 
-        const payloadCancion = {
-            nombreCancion: cancion,
-            artista: nombreOpt 
-        };
-
-        // Le pegamos al endpoint de canciones en Java
-        fetch(`${API_BASE_URL}/canciones?slug=${evento}`, {
+        fetch(`${API_BASE_URL}/canciones/evento/${EVENTO_ID}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payloadCancion)
+            body: JSON.stringify({ nombreCancion: cancion, artista: nombreOpt })
         })
         .then(response => {
-            if (!response.ok) throw new Error("Error al sugerir canción");
-            
+            if (!response.ok) throw new Error("Error al sugerir tema.");
             btn.innerText = "Enviar a la Playlist";
             btn.disabled = false;
             document.getElementById('mensajeExito').style.display = 'block';
-            
-            // Limpiamos el campo de canción por si quieren sugerir otra
             document.getElementById('cancionSugerida').value = "";
-            
-            setTimeout(() => {
-                document.getElementById('mensajeExito').style.display = 'none';
-            }, 5000);
+            setTimeout(() => { document.getElementById('mensajeExito').style.display = 'none'; }, 5000);
         })
         .catch(error => {
-            console.error('Error!', error);
-            alert("Hubo un error al enviar la canción a la base de datos.");
-            btn.innerText = "Enviar a la Playlist";
+            console.error('Error enviando canción:', error);
+            alert("No se pudo registrar la canción en el sistema.");
             btn.disabled = false;
+            btn.innerText = "Enviar a la Playlist";
         });
+    });
+}
+
+/**
+ * 6️⃣ AUXILIARES DE MODALES Y EFECTOS
+ */
+function abrirModal() { document.getElementById('modalAsistencia').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+function cerrarModal() { document.getElementById('modalAsistencia').style.display = 'none'; document.body.style.overflow = 'auto'; }
+function abrirModalRegalo() { document.getElementById('modalRegalo').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+function cerrarModalRegalo() { document.getElementById('modalRegalo').style.display = 'none'; document.body.style.overflow = 'auto'; }
+
+function copiarAlias() {
+    const alias = document.getElementById('alias-text').innerText;
+    navigator.clipboard.writeText(alias).then(() => {
+        const btn = document.querySelector('.btn-copy');
+        btn.innerText = "¡COPIADO!";
+        btn.style.background = "#2ecc71";
+        btn.style.color = "white";
+        setTimeout(() => {
+            btn.innerText = "COPIAR ALIAS";
+            btn.style.background = "var(--oro)";
+            btn.style.color = "var(--lacre-oscuro)";
+        }, 2000);
     });
 }
 
 window.addEventListener("load", function() {
     const preloader = document.getElementById("preloader");
-    setTimeout(() => {
-        if(preloader) preloader.classList.add("loader-hidden");
-    }, 1500);
+    setTimeout(() => { if(preloader) preloader.classList.add("loader-hidden"); }, 1500);
 });
+
+// Extensión nativa útil para comparar strings ignorando mayúsculas
+String.prototype.equalsIgnoreCase = function (str) {
+    return this.toLowerCase() === str.toLowerCase();
+};
