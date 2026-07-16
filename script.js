@@ -218,30 +218,36 @@ function enviarWhatsApp() {
             payloadRSVP.cantidadConfirmados = cantidadTotal;
             resumenWhatsApp = `%0A👨‍👩‍👧‍👦 Seremos en total: *${cantidadTotal}* personas.`;
         }
+    } else {
+        // Si no asiste, explícitamente mandamos 0 confirmados al backend
+        payloadRSVP.cantidadConfirmados = 0;
     }
 
-    // Si estamos en modo Mock local, salteamos el fetch para evitar errores 404 de red local
+    // Si estamos en modo Mock local, salteamos el fetch para evitar errores de red local
     if (CONFIG_INVITADO.id === 999) {
         procesarRedireccionWhatsApp(nombreInvitado, asisteValue, resumenWhatsApp, payloadRSVP.dieta);
         return;
     }
 
-    // Persistencia real en Spring Boot
+    // Persistencia real en Spring Boot optimizada para respuestas vacías
     fetch(`${API_BASE_URL}/invitados/confirmar?slug=${eventoSlug}&token=${token}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payloadRSVP)
     })
     .then(response => {
-        if (!response.ok) throw new Error("Error en persistencia.");
-        return response.json();
+        if (!response.ok) throw new Error("Error en persistencia del servidor.");
+        // Leemos como texto por si el back responde un String o vacío
+        return response.text();
     })
-    .then(res => {
+    .then(text => {
+        // Si el backend devolvió datos, los registramos en consola por control, pero avanzamos directo a WhatsApp
+        console.log("Respuesta del servidor:", text);
         procesarRedireccionWhatsApp(nombreInvitado, asisteValue, resumenWhatsApp, payloadRSVP.dieta);
     })
     .catch(error => {
         console.error("Error al registrar RSVP:", error);
-        alert("Hubo un inconveniente al registrar tu asistencia en el servidor. Reinténtalo.");
+        alert("Hubo un inconveniente al registrar tu asistencia en el servidor. Sin embargo, comprueba si la acción se realizó.");
     });
 }
 
@@ -268,7 +274,7 @@ function procesarRedireccionWhatsApp(nombreInvitado, asisteValue, resumenWhatsAp
 }
 
 /**
- * 6️⃣ SUGERENCIAS DE MÚSICA CENTRALIZADAS
+ * 6️⃣ SUGERENCIAS DE MÚSICA CENTRALIZADAS (Corregido)
  */
 const form = document.getElementById('formMusica');
 if (form) {
@@ -292,10 +298,14 @@ if (form) {
         const cancion = document.getElementById('cancionSugerida').value; 
         const nombreOpt = document.getElementById('nombreInvitado').value; 
 
+        // Enviamos el payload con la estructura correcta mapeada al modelo de Spring Boot
         fetch(`${API_BASE_URL}/canciones/evento/${EVENTO_ID}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ nombreCancion: cancion, artista: nombreOpt })
+            body: JSON.stringify({ 
+                nombreCancion: cancion, 
+                artista: nombreOpt 
+            })
         })
         .then(response => {
             if (!response.ok) throw new Error("Error al sugerir tema.");
