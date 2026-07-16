@@ -40,7 +40,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         };
         
-        // Inyectamos la data simulada
         inyectarDatosEnPantalla(datosPrueba);
         return;
     }
@@ -56,7 +55,6 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .catch(error => {
             console.error("Error crítico de sincronización (Backend Offline). Activando respaldo visual:", error);
-            // Si el backend falla por estar apagado, apagamos el loader igual para poder seguir trabajando
             const preloader = document.getElementById("preloader");
             if (preloader) preloader.classList.add("loader-hidden");
         });
@@ -93,7 +91,6 @@ function inyectarDatosEnPantalla(data) {
     document.getElementById('nombre').value = data.nombreInvitadoPrincipal;
     document.getElementById('nombreInvitado').value = data.nombreInvitadoPrincipal;
 
-    // Firma final en la sección de la carta
     const firmaFirma = document.querySelector('.final-signature');
     if (firmaFirma) firmaFirma.innerText = nombreAnfitrion;
 
@@ -108,7 +105,6 @@ function inyectarDatosEnPantalla(data) {
 
     armarEstructuraModalAsistencia(data);
 
-    // Apagamos el preloader de inmediato al terminar la inyección
     const preloader = document.getElementById("preloader");
     if (preloader) preloader.classList.add("loader-hidden");
 }
@@ -117,16 +113,12 @@ function inyectarDatosEnPantalla(data) {
  * 2️⃣ FUNCIÓN DE APERTURA GLOBAL
  */
 function abrirInvitacion() {
-    // 1. Removemos el Overlay / Sobre
     const overlay = document.getElementById('overlay');
     if (overlay) {
         overlay.style.opacity = '0';
-        setTimeout(() => {
-            overlay.style.display = 'none';
-        }, 500);
+        setTimeout(() => { overlay.style.display = 'none'; }, 500);
     }
 
-    // 2. FORZAMOS A QUE EL CONTENIDO PRINCIPAL SEA VISIBLE
     const mainContent = document.getElementById('main-content');
     if (mainContent) {
         mainContent.style.display = 'block'; 
@@ -135,7 +127,6 @@ function abrirInvitacion() {
         mainContent.classList.add('active', 'open'); 
     }
 
-    // 3. Encendemos la música de fondo
     const audio = document.getElementById('musicaFondo');
     if (audio) {
         audio.play().catch(error => {
@@ -145,13 +136,14 @@ function abrirInvitacion() {
 }
 
 /**
- * 3️⃣ CONSTRUCTOR DINÁMICO DEL MODAL RSVP
+ * 3️⃣ CONSTRUCTOR DINÁMICO DEL MODAL RSVP (Corregido de forma segura)
  */
 function armarEstructuraModalAsistencia(invitado) {
     const contenedor = document.getElementById('contenedor-dinamico-rsvp');
     contenedor.innerHTML = ""; 
 
-    if ("NOMINAL".equalsIgnoreCase(invitado.tipoInvitacion)) {
+    // Forma segura en Vanilla JS nativo sin extender prototipos prematuramente:
+    if (invitado.tipoInvitacion && invitado.tipoInvitacion.toUpperCase() === "NOMINAL") {
         let htmlAcompanantes = `<label style="margin-bottom:10px; display:block; font-weight:600;">Registrar Acompañantes Autorizados (Máx: ${invitado.cupoMaximoOtorgado - 1})</label>`;
         
         for (let i = 1; i < invitado.cupoMaximoOtorgado; i++) {
@@ -184,9 +176,8 @@ function controlarDespliegueSegunAsistencia() {
 }
 
 /**
- * 5️⃣ ENVÍO ASÍNCRONO DEL RSVP Y REDIRECCIÓN A WHATSAPP
+ * 5️⃣ ENVÍO ASÍNCRONO DEL RSVP CON FEEDBACK DE ALTISIMA CALIDAD
  */
-// 5️⃣ ENVÍO ASÍNCRONO DEL RSVP CENTRALIZADO (SIN REDIRECCIÓN OBLIGATORIA A WHATSAPP)
 function enviarWhatsApp() {
     const asisteValue = document.getElementById('asiste').value;
     const dietaGeneral = document.getElementById('dieta').value || "Ninguna";
@@ -199,6 +190,8 @@ function enviarWhatsApp() {
         acompanantes: []
     };
 
+    let resumenWhatsApp = "";
+
     if (asisteValue === "si") {
         if (CONFIG_INVITADO.tipoInvitacion === "NOMINAL") {
             const filas = document.querySelectorAll('.fila-acompanante');
@@ -208,11 +201,13 @@ function enviarWhatsApp() {
                 
                 if (name !== "") {
                     payloadRSVP.acompanantes.push({ nombre: name, dieta: restriction });
+                    resumenWhatsApp += `%0A• *${name}* (Dieta: ${restriction})`;
                 }
             });
             payloadRSVP.cantidadConfirmados = 1 + payloadRSVP.acompanantes.length;
         } else {
             payloadRSVP.cantidadConfirmados = parseInt(document.getElementById('cantidad').value);
+            resumenWhatsApp = `%0A• *Total asistentes:* ${payloadRSVP.cantidadConfirmados} personas`;
         }
     } else {
         payloadRSVP.cantidadConfirmados = 0;
@@ -220,8 +215,7 @@ function enviarWhatsApp() {
 
     // Modo Mock local
     if (CONFIG_INVITADO.id === 999) {
-        alert("¡Respuesta simulada con éxito! (Modo de prueba)");
-        cerrarModal();
+        mostrarFeedbackExito(payloadRSVP.asiste, nombreInvitado, asisteValue, resumenWhatsApp, dietaGeneral);
         return;
     }
 
@@ -236,11 +230,7 @@ function enviarWhatsApp() {
         return response.json();
     })
     .then(data => {
-        console.log("Servidor actualizado:", data);
-        alert(payloadRSVP.asiste ? "¡Tu asistencia ha sido confirmada con éxito!" : "Lamentamos que no puedas asistir. Tu respuesta fue registrada.");
-        cerrarModal();
-        // Opcional: Recargar la página si se desea actualizar el estado visual de la tarjeta
-        window.location.reload();
+        mostrarFeedbackExito(payloadRSVP.asiste, nombreInvitado, asisteValue, resumenWhatsApp, dietaGeneral);
     })
     .catch(error => {
         console.error("Error al registrar RSVP:", error);
@@ -248,8 +238,36 @@ function enviarWhatsApp() {
     });
 }
 
+/**
+ * 🌟 MUESTRA EL MODAL DE ÉXITO ELIMINANDO LOS ALERTS ARCAICOS
+ */
+function mostrarFeedbackExito(isAsiste, nombreInvitado, asisteValue, resumenWhatsApp, dieta) {
+    cerrarModal(); // Cerramos el de carga de datos
+    
+    const titulo = document.getElementById("feedback-titulo");
+    const msg = document.getElementById("feedback-mensaje");
+    
+    if(isAsiste) {
+        titulo.innerText = "¡Confirmación Guardada!";
+        msg.innerText = "Tu respuesta se registró correctamente en el sistema de la fiesta. ¡Nos alegra mucho contar con vos!";
+    } else {
+        titulo.innerText = "Respuesta Registrada";
+        msg.innerText = "Lamentamos que no puedas asistir. Tu lugar ha sido liberado correctamente.";
+    }
+
+    // Configuramos el botón final de WhatsApp dentro del modal
+    const btnWA = document.getElementById("btn-finalizar-wa");
+    btnWA.onclick = () => {
+        procesarRedireccionWhatsApp(nombreInvitado, asisteValue, resumenWhatsApp, dieta);
+    };
+
+    // Desplegamos el nuevo modal de confirmación
+    document.getElementById('modalFeedback').style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
 function procesarRedireccionWhatsApp(nombreInvitado, asisteValue, resumenWhatsApp, dieta) {
-    const telefonoOrganizador = "549123456789"; // Configurable
+    const telefonoOrganizador = "549123456789"; // Cambialo por el real del cliente
     let mensajeWA = "";
 
     if (asisteValue === "si") {
@@ -267,18 +285,17 @@ function procesarRedireccionWhatsApp(nombreInvitado, asisteValue, resumenWhatsAp
     }
 
     window.open(`https://api.whatsapp.com/send?phone=${telefonoOrganizador}&text=${mensajeWA}`, '_blank');
-    cerrarModal();
+    cerrarModalFeedback();
 }
 
 /**
- * 6️⃣ SUGERENCIAS DE MÚSICA CENTRALIZADAS (Corregido)
+ * 6️⃣ SUGERENCIAS DE MÚSICA CENTRALIZADAS
  */
 const form = document.getElementById('formMusica');
 if (form) {
     form.addEventListener('submit', e => {
         e.preventDefault();
         
-        // Si es demo, simulamos éxito directo
         if (CONFIG_INVITADO && CONFIG_INVITADO.id === 999) {
             document.getElementById('mensajeExito').style.display = 'block';
             document.getElementById('cancionSugerida').value = "";
@@ -295,7 +312,6 @@ if (form) {
         const cancion = document.getElementById('cancionSugerida').value; 
         const nombreOpt = document.getElementById('nombreInvitado').value; 
 
-        // Enviamos el payload con la estructura correcta mapeada al modelo de Spring Boot
         fetch(`${API_BASE_URL}/canciones/evento/${EVENTO_ID}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -313,7 +329,7 @@ if (form) {
             setTimeout(() => { document.getElementById('mensajeExito').style.display = 'none'; }, 5000);
         })
         .catch(error => {
-            console.error('Error enviando canción:', error);
+            console.error('Error地形 enviando canción:', error);
             alert("No se pudo registrar la canción en el sistema.");
             btn.disabled = false;
             btn.innerText = "Enviar a la Playlist";
@@ -328,6 +344,12 @@ function abrirModal() { document.getElementById('modalAsistencia').style.display
 function cerrarModal() { document.getElementById('modalAsistencia').style.display = 'none'; document.body.style.overflow = 'auto'; }
 function abrirModalRegalo() { document.getElementById('modalRegalo').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
 function cerrarModalRegalo() { document.getElementById('modalRegalo').style.display = 'none'; document.body.style.overflow = 'auto'; }
+
+function cerrarModalFeedback() { 
+    document.getElementById('modalFeedback').style.display = 'none'; 
+    document.body.style.overflow = 'auto'; 
+    window.location.reload(); // Recarga limpia para actualizar la vista tras confirmar
+}
 
 function copiarAlias() {
     const alias = document.getElementById('alias-text').innerText;
@@ -345,8 +367,3 @@ function copiarAlias() {
         }
     });
 }
-
-// Extensión nativa útil para comparar strings ignorando mayúsculas
-String.prototype.equalsIgnoreCase = function (str) {
-    return str ? this.toLowerCase() === str.toLowerCase() : false;
-};
