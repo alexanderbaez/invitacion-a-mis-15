@@ -186,6 +186,7 @@ function controlarDespliegueSegunAsistencia() {
 /**
  * 5️⃣ ENVÍO ASÍNCRONO DEL RSVP Y REDIRECCIÓN A WHATSAPP
  */
+// 5️⃣ ENVÍO ASÍNCRONO DEL RSVP CENTRALIZADO (SIN REDIRECCIÓN OBLIGATORIA A WHATSAPP)
 function enviarWhatsApp() {
     const asisteValue = document.getElementById('asiste').value;
     const dietaGeneral = document.getElementById('dieta').value || "Ninguna";
@@ -198,8 +199,6 @@ function enviarWhatsApp() {
         acompanantes: []
     };
 
-    let resumenWhatsApp = "";
-
     if (asisteValue === "si") {
         if (CONFIG_INVITADO.tipoInvitacion === "NOMINAL") {
             const filas = document.querySelectorAll('.fila-acompanante');
@@ -209,45 +208,43 @@ function enviarWhatsApp() {
                 
                 if (name !== "") {
                     payloadRSVP.acompanantes.push({ nombre: name, dieta: restriction });
-                    resumenWhatsApp += `%0A• *${name}* (Dieta: ${restriction})`;
                 }
             });
             payloadRSVP.cantidadConfirmados = 1 + payloadRSVP.acompanantes.length;
         } else {
-            const cantidadTotal = parseInt(document.getElementById('cantidad').value);
-            payloadRSVP.cantidadConfirmados = cantidadTotal;
-            resumenWhatsApp = `%0A👨‍👩‍👧‍👦 Seremos en total: *${cantidadTotal}* personas.`;
+            payloadRSVP.cantidadConfirmados = parseInt(document.getElementById('cantidad').value);
         }
     } else {
-        // Si no asiste, explícitamente mandamos 0 confirmados al backend
         payloadRSVP.cantidadConfirmados = 0;
     }
 
-    // Si estamos en modo Mock local, salteamos el fetch para evitar errores de red local
+    // Modo Mock local
     if (CONFIG_INVITADO.id === 999) {
-        procesarRedireccionWhatsApp(nombreInvitado, asisteValue, resumenWhatsApp, payloadRSVP.dieta);
+        alert("¡Respuesta simulada con éxito! (Modo de prueba)");
+        cerrarModal();
         return;
     }
 
-    // Persistencia real en Spring Boot optimizada para respuestas vacías
+    // Petición real al Backend Maestro
     fetch(`${API_BASE_URL}/invitados/confirmar?slug=${eventoSlug}&token=${token}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payloadRSVP)
     })
     .then(response => {
-        if (!response.ok) throw new Error("Error en persistencia del servidor.");
-        // Leemos como texto por si el back responde un String o vacío
-        return response.text();
+        if (!response.ok) throw new Error("Error en el servidor.");
+        return response.json();
     })
-    .then(text => {
-        // Si el backend devolvió datos, los registramos en consola por control, pero avanzamos directo a WhatsApp
-        console.log("Respuesta del servidor:", text);
-        procesarRedireccionWhatsApp(nombreInvitado, asisteValue, resumenWhatsApp, payloadRSVP.dieta);
+    .then(data => {
+        console.log("Servidor actualizado:", data);
+        alert(payloadRSVP.asiste ? "¡Tu asistencia ha sido confirmada con éxito!" : "Lamentamos que no puedas asistir. Tu respuesta fue registrada.");
+        cerrarModal();
+        // Opcional: Recargar la página si se desea actualizar el estado visual de la tarjeta
+        window.location.reload();
     })
     .catch(error => {
         console.error("Error al registrar RSVP:", error);
-        alert("Hubo un inconveniente al registrar tu asistencia en el servidor. Sin embargo, comprueba si la acción se realizó.");
+        alert("Hubo un inconveniente al guardar tu respuesta. Por favor, reinténtalo.");
     });
 }
 
