@@ -31,13 +31,14 @@ document.addEventListener("DOMContentLoaded", () => {
             id: 999,
             nombreInvitadoPrincipal: "Alexander Baez (Invitado de Prueba)",
             tipoInvitacion: "NOMINAL",
-            cupoMaximoOtorgado: 3,
+            cupoMaximoOtorgado: 5,
+            cantidadConfirmados: 5, // Simula que ya confirmó para pruebas de QR
             evento: {
                 id: 10,
                 nombreAnfitrion: "Andrea",
                 fechaEvento: "2026-11-20T21:00:00",
                 aliasCbu: "ANDREA.15.FIESTA",
-                telefonoOrganizador: "549123456789" // Teléfono de prueba
+                telefonoOrganizador: "549123456789"
             }
         };
         
@@ -59,6 +60,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const preloader = document.getElementById("preloader");
             if (preloader) preloader.classList.add("loader-hidden");
         });
+
+    // Vincular el botón de descarga con el nuevo renderizador blindado
+    const btnDescargar = document.getElementById('btnDescargarPasePNG');
+    if (btnDescargar) {
+        btnDescargar.addEventListener('click', descargarPaseBlindado);
+    }
 });
 
 /**
@@ -83,11 +90,10 @@ function inyectarDatosEnPantalla(data) {
     document.getElementById('txt-fecha-hero').innerText = fechaFormateada.toUpperCase();
     document.getElementById('txt-fecha-salon').innerText = `${fechaFormateada} - 21:00 Horas`;
 
-    // 👉 CORRECCIÓN DEL LINK DE GOOGLE CALENDAR: Formateamos las fechas en formato UTC (AAAAMMDDTHHMMSSZ) para que Google las interprete bien.
+    // CORRECCIÓN DEL LINK DE GOOGLE CALENDAR
     const formatGCalDate = (date) => date.toISOString().replace(/-|:|\.\d\d\d/g, "");
     const fechaInicioGCal = formatGCalDate(fechaData);
     
-    // Calculamos 4 horas de duración estimada para el evento
     const fechaFinData = new Date(fechaData.getTime() + (4 * 60 * 60 * 1000));
     const fechaFinGCal = formatGCalDate(fechaFinData);
 
@@ -98,51 +104,156 @@ function inyectarDatosEnPantalla(data) {
     document.getElementById('txt-cbu').innerText = `CBU/Datos: ${data.evento.aliasCbu || 'Consultar con el organizador.'}`;
 
     // --- INYECTAR DATOS DEL INVITADO PRINCIPAL ---
-    document.getElementById('nombre').value = data.nombreInvitadoPrincipal;
-    document.getElementById('nombreInvitado').value = data.nombreInvitadoPrincipal;
+    if(document.getElementById('nombre')) document.getElementById('nombre').value = data.nombreInvitadoPrincipal;
+    if(document.getElementById('nombreInvitado')) document.getElementById('nombreInvitado').value = data.nombreInvitadoPrincipal;
 
     const firmaFirma = document.querySelector('.final-signature');
     if (firmaFirma) firmaFirma.innerText = nombreAnfitrion;
 
-    document.getElementById('saludo-personalizado').innerHTML = `
-        <h3 style="font-family: 'Playfair Display'; font-size: 1.6rem; color: var(--lacre-oscuro); text-align:center;">
-            ¡Hola ${data.nombreInvitadoPrincipal}!
-        </h3>
-        <p class="intro-text" style="text-align:center; font-size:1rem; margin-top:5px;">
-            Nos encantaría tenerte con nosotros para disfrutar de esta gran noche.
-        </p>
-    `;
+    const saludoPersonalizado = document.getElementById('saludo-personalizado');
+    if (saludoPersonalizado) {
+        saludoPersonalizado.innerHTML = `
+            <h3 style="font-family: 'Playfair Display'; font-size: 1.6rem; color: var(--lacre-oscuro); text-align:center;">
+                ¡Hola ${data.nombreInvitadoPrincipal}!
+            </h3>
+            <p class="intro-text" style="text-align:center; font-size:1rem; margin-top:5px;">
+                Nos encantaría tenerte con nosotros para disfrutar de esta gran noche.
+            </p>
+        `;
+    }
 
     armarEstructuraModalAsistencia(data);
+
+    // 🚀 DETECTOR AUTO-OPEN WHATSAPP: Si el invitado ya tiene pases confirmados (> 0), abrimos directo su Ticket QR
+    if (data.cantidadConfirmados && parseInt(data.cantidadConfirmados) > 0) {
+        console.log("Invitado con pases confirmados detectado. Abriendo Ticket QR directamente.");
+        abrirModalTicketQR(data);
+    }
 
     const preloader = document.getElementById("preloader");
     if (preloader) preloader.classList.add("loader-hidden");
 }
 
 /**
- * 2️⃣ FUNCIÓN DE APERTURA GLOBAL
+ * 🎫 FUNCIÓN PARA POPOULAR Y MOSTRAR EL MODAL DEL TICKET QR INTERACTIVO
  */
-function abrirInvitacion() {
+function abrirModalTicketQR(invitado) {
+    const modalQR = document.getElementById('modalTicketQR');
+    if (!modalQR) return;
+
+    // Asignamos textos dinámicos a la tarjeta VIP dentro del modal
+    const qrTicketNombre = document.getElementById('qrTicketNombre');
+    const qrTicketCupo = document.getElementById('qrTicketCupo');
+    const qrTicketImg = document.getElementById('qrTicketImg');
+
+    if (qrTicketNombre) qrTicketNombre.innerText = invitado.nombreInvitadoPrincipal;
+    if (qrTicketCupo) qrTicketCupo.innerText = `${invitado.cantidadConfirmados} ${invitado.cantidadConfirmados === 1 ? 'pase' : 'pases'}`;
+    
+    if (qrTicketImg && token) {
+        qrTicketImg.crossOrigin = "anonymous";
+        qrTicketImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(token)}`;
+    }
+
+    // Cambiamos el overlay de apertura original por el del ticket QR
     const overlay = document.getElementById('overlay');
-    if (overlay) {
-        overlay.style.opacity = '0';
-        setTimeout(() => { overlay.style.display = 'none'; }, 500);
+    if (overlay) overlay.style.display = 'none';
+
+    modalQR.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+}
+
+/**
+ * 📸 RENDERIZADOR BLINDADO CONTRA ERRORES OKLCH (USANDO IFRAME SANDBOX)
+ */
+function descargarPaseBlindado() {
+    const tarjetaOriginal = document.getElementById('tarjetaVipContenedor');
+    const btnDescargar = document.getElementById('btnDescargarPasePNG');
+    const nombreInvitado = CONFIG_INVITADO ? CONFIG_INVITADO.nombreInvitadoPrincipal.replace(/[^a-z0-9]/gi, '_').toLowerCase() : 'invitado';
+
+    if (!tarjetaOriginal) return;
+    if (typeof html2canvas === 'undefined') {
+        alert("La librería html2canvas no está disponible.");
+        return;
     }
 
-    const mainContent = document.getElementById('main-content');
-    if (mainContent) {
-        mainContent.style.display = 'block'; 
-        mainContent.style.opacity = '1';
-        mainContent.style.visibility = 'visible';
-        mainContent.classList.add('active', 'open'); 
+    const textoOriginal = btnDescargar.innerHTML;
+    btnDescargar.innerHTML = "Procesando...";
+    btnDescargar.disabled = true;
+
+    // 1. Creamos un iframe en blanco (Sandbox) para aislar por completo el DOM de Tailwind v4
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'absolute';
+    iframe.style.width = '400px';
+    iframe.style.height = '700px';
+    iframe.style.top = '-9999px';
+    iframe.style.left = '-9999px';
+    document.body.appendChild(iframe);
+
+    const docIframe = iframe.contentDocument || iframe.contentWindow.document;
+
+    // 2. Clonamos los estilos internos e inyectamos la estructura limpia sin variables oklch globales
+    const clonTarjeta = tarjetaOriginal.cloneNode(true);
+    
+    // Quitamos los botones internos del clon para que no salgan en la foto
+    const contenedorBotones = clonTarjeta.querySelector('.flex.flex-col.gap-2') || clonTarjeta.querySelector('button')?.parentNode;
+    if (contenedorBotones && contenedorBotones !== clonTarjeta) {
+        contenedorBotones.remove();
     }
 
-    const audio = document.getElementById('musicaFondo');
-    if (audio) {
-        audio.play().catch(error => {
-            console.log("La reproducción automática fue bloqueada por el navegador:", error);
+    docIframe.open();
+    docIframe.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>
+                body { margin: 0; padding: 20px; background-color: #f8fafc; display: flex; justify-content: center; }
+                /* Copia de estilos críticos planos para tu tarjeta */
+                #tarjetaVipContenedor {
+                    background: #ffffff !important;
+                    border-radius: 24px !important;
+                    padding: 24px !important;
+                    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1) !important;
+                    width: 340px !important;
+                    text-align: center !important;
+                    font-family: 'Montserrat', sans-serif !important;
+                }
+            </style>
+        </head>
+        <body>
+            <div id="render-target"></div>
+        </body>
+        </html>
+    `);
+    docIframe.close();
+
+    // 3. Insertamos el clon en el entorno limpio del iframe
+    docIframe.getElementById('render-target').appendChild(clonTarjeta);
+
+    // 4. Ejecutamos html2canvas apuntando al entorno aislado
+    setTimeout(() => {
+        iframe.contentWindow.html2canvas(clonTarjeta, {
+            scale: 3,
+            useCORS: true,
+            backgroundColor: "#f8fafc"
+        }).then(canvas => {
+            const blobData = canvas.toDataURL("image/png");
+            const enlaceDescarga = document.createElement('a');
+            enlaceDescarga.download = `pase_${nombreInvitado}.png`;
+            enlaceDescarga.href = blobData;
+            enlaceDescarga.click();
+
+            // Limpieza
+            iframe.remove();
+            btnDescargar.innerHTML = textoOriginal;
+            btnDescargar.disabled = false;
+        }).catch(err => {
+            console.error("Error en renderizado aislado:", err);
+            alert("No se pudo procesar la imagen del pase.");
+            iframe.remove();
+            btnDescargar.innerHTML = textoOriginal;
+            btnDescargar.disabled = false;
         });
-    }
+    }, 250);
 }
 
 /**
@@ -150,6 +261,7 @@ function abrirInvitacion() {
  */
 function armarEstructuraModalAsistencia(invitado) {
     const contenedor = document.getElementById('contenedor-dinamico-rsvp');
+    if (!contenedor) return;
     contenedor.innerHTML = ""; 
 
     if (invitado.tipoInvitacion && invitado.tipoInvitacion.toUpperCase() === "NOMINAL") {
@@ -168,7 +280,7 @@ function armarEstructuraModalAsistencia(invitado) {
         let opcionesSelect = `<label>¿Cuántas personas asistirán en total?</label>
                               <select id="cantidad" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-family: 'Montserrat'; margin-top:5px;">`;
         for (let i = 1; i <= invitado.cupoMaximoOtorgado; i++) {
-            optionsSelect = opcionesSelect += `<option value="${i}">${i} ${i === 1 ? 'Persona' : 'Personas'}</option>`;
+            opcionesSelect += `<option value="${i}">${i} ${i === 1 ? 'Persona' : 'Personas'}</option>`;
         }
         opcionesSelect += `</select>`;
         contenedor.innerHTML = opcionesSelect;
@@ -181,7 +293,7 @@ function armarEstructuraModalAsistencia(invitado) {
 function controlarDespliegueSegunAsistencia() {
     const asisteValue = document.getElementById('asiste').value;
     const contenedor = document.getElementById('contenedor-dinamico-rsvp');
-    contenedor.style.display = (asisteValue === 'si') ? 'block' : 'none';
+    if(contenedor) contenedor.style.display = (asisteValue === 'si') ? 'block' : 'none';
 }
 
 /**
@@ -224,6 +336,7 @@ function enviarWhatsApp() {
 
     // Modo Mock local
     if (CONFIG_INVITADO.id === 999) {
+        CONFIG_INVITADO.cantidadConfirmados = payloadRSVP.cantidadConfirmados;
         mostrarFeedbackExito(payloadRSVP.asiste, nombreInvitado, asisteValue, resumenWhatsApp, dietaGeneral);
         return;
     }
@@ -239,6 +352,8 @@ function enviarWhatsApp() {
         return response.json();
     })
     .then(data => {
+        // Seteamos la cantidad confirmada que devolvió el backend antes de abrir el modal de éxito
+        CONFIG_INVITADO.cantidadConfirmados = payloadRSVP.cantidadConfirmados;
         mostrarFeedbackExito(payloadRSVP.asiste, nombreInvitado, asisteValue, resumenWhatsApp, dietaGeneral);
     })
     .catch(error => {
@@ -257,26 +372,28 @@ function mostrarFeedbackExito(isAsiste, nombreInvitado, asisteValue, resumenWhat
     const msg = document.getElementById("feedback-mensaje");
     
     if(isAsiste) {
-        titulo.innerText = "¡Confirmación Guardada!";
-        msg.innerText = "Tu respuesta se registró correctamente en el sistema de la fiesta. ¡Nos alegra mucho contar con vos!";
+        if(titulo) titulo.innerText = "¡Confirmación Guardada!";
+        if(msg) msg.innerText = "Tu respuesta se registró correctamente en el sistema de la fiesta. ¡Nos alegra mucho contar con vos!";
     } else {
-        titulo.innerText = "Respuesta Registrada";
-        msg.innerText = "Lamentamos que no puedas asistir. Tu lugar ha sido liberado correctamente.";
+        if(titulo) titulo.innerText = "Respuesta Registrada";
+        if(msg) msg.innerText = "Lamentamos que no puedas asistir. Tu lugar ha sido liberado correctamente.";
     }
 
     // Configuramos el botón final de WhatsApp dentro del modal
     const btnWA = document.getElementById("btn-finalizar-wa");
-    btnWA.onclick = () => {
-        procesarRedireccionWhatsApp(nombreInvitado, asisteValue, resumenWhatsApp, dieta);
-    };
+    if(btnWA) {
+        btnWA.onclick = () => {
+            procesarRedireccionWhatsApp(nombreInvitado, asisteValue, resumenWhatsApp, dieta);
+        };
+    }
 
     // Desplegamos el nuevo modal de confirmación
-    document.getElementById('modalFeedback').style.display = 'flex';
+    const modalFeedback = document.getElementById('modalFeedback');
+    if(modalFeedback) modalFeedback.style.display = 'flex';
     document.body.style.overflow = 'hidden';
 }
 
 function procesarRedireccionWhatsApp(nombreInvitado, asisteValue, resumenWhatsApp, dieta) {
-    // 👉 CORRECCIÓN DEL LINK DE WHATSAPP: Intentará obtener dinámicamente el teléfono del backend, de lo contrario usará el hardcodeado.
     const telefonoOrganizador = CONFIG_INVITADO?.evento?.telefonoOrganizador || CONFIG_INVITADO?.evento?.telefono || "549123456789";
     let mensajeWA = "";
 
@@ -339,7 +456,7 @@ if (form) {
             setTimeout(() => { document.getElementById('mensajeExito').style.display = 'none'; }, 5000);
         })
         .catch(error => {
-            console.error('Error enviando canción:', error); // Corregido typo "Error地形"
+            console.error('Error enviando canción:', error);
             alert("No se pudo registrar la canción en el sistema.");
             btn.disabled = false;
             btn.innerText = "Enviar a la Playlist";
@@ -355,10 +472,23 @@ function cerrarModal() { document.getElementById('modalAsistencia').style.displa
 function abrirModalRegalo() { document.getElementById('modalRegalo').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
 function cerrarModalRegalo() { document.getElementById('modalRegalo').style.display = 'none'; document.body.style.overflow = 'auto'; }
 
+function cerrarModalTicketQR() {
+    const modalQR = document.getElementById('modalTicketQR');
+    if (modalQR) modalQR.style.display = 'none';
+    document.body.style.overflow = 'auto';
+}
+
 function cerrarModalFeedback() { 
     document.getElementById('modalFeedback').style.display = 'none'; 
     document.body.style.overflow = 'auto'; 
-    window.location.reload(); // Recarga limpia para actualizar la vista tras confirmar
+    
+    // Si el usuario confirmó asistencia, en lugar de recargar a la pantalla inicial en blanco,
+    // forzamos la apertura directa de su nuevo ticket QR.
+    if (CONFIG_INVITADO && CONFIG_INVITADO.cantidadConfirmados > 0) {
+        abrirModalTicketQR(CONFIG_INVITADO);
+    } else {
+        window.location.reload();
+    }
 }
 
 function copiarAlias() {
