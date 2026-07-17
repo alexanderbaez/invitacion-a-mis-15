@@ -1,3 +1,7 @@
+// ============================================================================
+// 🗺️ CONFIGURACIÓN GLOBAL Y PARSEO DE URL
+// ============================================================================
+
 // URL BASE DEL BACKEND CENTRALIZADO EN SPRING BOOT
 const API_BASE_URL = 'http://localhost:8080/api/v1';
 
@@ -12,8 +16,10 @@ let EVENTO_ID = null;
 
 /**
  * 1️⃣ INICIALIZACIÓN DINÁMICA DE LA TARJETA
+ * Se ejecuta apenas el navegador procesa el HTML estructurado.
  */
 document.addEventListener("DOMContentLoaded", () => {
+    
     // FUNCIÓN DE SEGURIDAD: Si pasan 3.5 segundos y el Back no respondió, apagamos el preloader igual
     setTimeout(() => {
         const preloader = document.getElementById("preloader");
@@ -36,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
             evento: {
                 id: 10,
                 nombreAnfitrion: "Andrea",
-                fechaEvento: "2026-11-20T21:00:00",
+                fechaEvento: "2026-11-20T21:00:00", // 👈 AQUÍ PODÉS CAMBIAR LA FECHA DE PRUEBA LOCAL (Formato ISO)
                 aliasCbu: "ANDREA.15.FIESTA",
                 telefonoOrganizador: "549123456789"
             }
@@ -46,13 +52,14 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    // Consultamos al Backend Maestro Real
+    // Consultamos al Backend Maestro Real enviando las credenciales de la URL
     fetch(`${API_BASE_URL}/invitados/buscar?slug=${eventoSlug}&token=${token}`)
         .then(response => {
             if (!response.ok) throw new Error("Token o Evento inexistente.");
             return response.json();
         })
         .then(data => {
+            // Si el backend responde, llamamos a la función constructora en pantalla
             inyectarDatosEnPantalla(data);
         })
         .catch(error => {
@@ -61,7 +68,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (preloader) preloader.classList.add("loader-hidden");
         });
 
-    // Vincular el botón de descarga con el nuevo renderizador blindado
+    // Vincular el botón de descarga con el renderizador blindado en el Iframe
     const btnDescargar = document.getElementById('btnDescargarPasePNG');
     if (btnDescargar) {
         btnDescargar.addEventListener('click', descargarPaseBlindado);
@@ -70,6 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 /**
  * 🛠️ FUNCIÓN MAESTRA PARA INYECTAR LA DATA EN EL HTML
+ * Distribuye todos los nombres, textos, fechas y configura el comportamiento inicial.
  */
 function inyectarDatosEnPantalla(data) {
     CONFIG_INVITADO = data;
@@ -79,27 +87,36 @@ function inyectarDatosEnPantalla(data) {
     const nombreAnfitrion = data.evento.nombreAnfitrion;
     document.title = `Invitación Oficial | ${nombreAnfitrion}`;
     
+    // Inyecta el nombre de la quinceañera/novios en todas las clases correspondientes
     document.querySelectorAll('.txt-anfitrion').forEach(el => el.innerText = nombreAnfitrion);
     document.getElementById('txt-hashtag').innerText = `#${nombreAnfitrion.replace(/\s+/g, '')}2026`;
 
-    // Procesamiento y formateado de fechas
+    // Procesamiento y formateado automático de fechas de la base de datos
     const fechaData = new Date(data.evento.fechaEvento);
     const opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const fechaFormateada = fechaData.toLocaleDateString('es-ES', opcionesFecha);
     
+    // Renderiza las fechas en mayúsculas para los banners principales
     document.getElementById('txt-fecha-hero').innerText = fechaFormateada.toUpperCase();
     document.getElementById('txt-fecha-salon').innerText = `${fechaFormateada} - 21:00 Horas`;
+
+    // 🕒 INICIALIZADOR DE CUENTA REGRESIVA RECOMENDADO:
+    // Si tenés un script de cuenta regresiva independiente en tu proyecto, toma la variable "fechaData" de acá arriba
+    // Ejemplo: inicializarCronometro(fechaData);
 
     // CORRECCIÓN DEL LINK DE GOOGLE CALENDAR
     const formatGCalDate = (date) => date.toISOString().replace(/-|:|\.\d\d\d/g, "");
     const fechaInicioGCal = formatGCalDate(fechaData);
     
+    // Calcula la finalización del evento sumándole 4 horas por defecto
     const fechaFinData = new Date(fechaData.getTime() + (4 * 60 * 60 * 1000));
     const fechaFinGCal = formatGCalDate(fechaFinData);
 
+    // Construye el enlace dinámico para que el invitado agende la fiesta en su calendario de Google
     const gCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Fiesta+de+${encodeURIComponent(nombreAnfitrion)}&dates=${fechaInicioGCal}/${fechaFinGCal}&details=¡Te+espero+para+compartir+una+noche+mágica!`;
     document.getElementById('btn-gcalendar').href = gCalUrl;
 
+    // Muestra los datos financieros guardados en la BD
     document.getElementById('alias-text').innerText = data.evento.aliasCbu || "NO_ASIGNADO";
     document.getElementById('txt-cbu').innerText = `CBU/Datos: ${data.evento.aliasCbu || 'Consultar con el organizador.'}`;
 
@@ -107,9 +124,11 @@ function inyectarDatosEnPantalla(data) {
     if(document.getElementById('nombre')) document.getElementById('nombre').value = data.nombreInvitadoPrincipal;
     if(document.getElementById('nombreInvitado')) document.getElementById('nombreInvitado').value = data.nombreInvitadoPrincipal;
 
+    // Coloca la firma del anfitrión al pie de la invitación
     const firmaFirma = document.querySelector('.final-signature');
     if (firmaFirma) firmaFirma.innerText = nombreAnfitrion;
 
+    // Renderiza el bloque central de bienvenida personalizada
     const saludoPersonalizado = document.getElementById('saludo-personalizado');
     if (saludoPersonalizado) {
         saludoPersonalizado.innerHTML = `
@@ -122,20 +141,24 @@ function inyectarDatosEnPantalla(data) {
         `;
     }
 
+    // Diseña la lógica interna del modal de asistencia (Si es por lista nominal o numérica)
     armarEstructuraModalAsistencia(data);
 
-    // 🚀 DETECTOR AUTO-OPEN WHATSAPP: Si el invitado ya tiene pases confirmados (> 0), abrimos directo su Ticket QR
+    // 🚀 DETECTOR AUTO-OPEN WHATSAPP E INVERSION DE FLUJO:
+    // Si el invitado ya tiene pases asignados en el back, saltea la invitación y le monta el ticket QR directo en la cara.
     if (data.cantidadConfirmados && parseInt(data.cantidadConfirmados) > 0) {
         console.log("Invitado con pases confirmados detectado. Abriendo Ticket QR directamente.");
         abrirModalTicketQR(data);
     }
 
+    // Fin del circuito: Ocultamos el spinner de carga inicial
     const preloader = document.getElementById("preloader");
     if (preloader) preloader.classList.add("loader-hidden");
 }
 
 /**
- * 🎫 FUNCIÓN PARA POPOULAR Y MOSTRAR EL MODAL DEL TICKET QR INTERACTIVO
+ * 🎫 FUNCIÓN PARA POPULAR Y MOSTRAR EL MODAL DEL TICKET QR INTERACTIVO
+ * SOLUCIÓN DE CORS IMPLEMENTADA: Convierte el QR externo en Base64 para habilitar descargas.
  */
 function abrirModalTicketQR(invitado) {
     const modalQR = document.getElementById('modalTicketQR');
@@ -149,9 +172,27 @@ function abrirModalTicketQR(invitado) {
     if (qrTicketNombre) qrTicketNombre.innerText = invitado.nombreInvitadoPrincipal;
     if (qrTicketCupo) qrTicketCupo.innerText = `${invitado.cantidadConfirmados} ${invitado.cantidadConfirmados === 1 ? 'pase' : 'pases'}`;
     
+    // Solución del bloqueo de CORS interceptando el origen de la imagen externa
     if (qrTicketImg && token) {
-        qrTicketImg.crossOrigin = "anonymous";
-        qrTicketImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(token)}`;
+        qrTicketImg.removeAttribute('src'); // Limpieza preventiva contra bugs de caché
+        
+        const urlQrExterna = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(token)}`;
+        
+        // Efectuamos una conversión limpia a Base64 local destruyendo el bloqueo de CORS del Canvas
+        fetch(urlQrExterna)
+            .then(response => response.blob())
+            .then(blob => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    qrTicketImg.src = reader.result; // Origen local "data:image/png..." inocuo
+                };
+                reader.readAsDataURL(blob);
+            })
+            .catch(err => {
+                console.error("Error al capear CORS del QR:", err);
+                qrTicketImg.crossOrigin = "anonymous";
+                qrTicketImg.src = urlQrExterna;
+            });
     }
 
     // Cambiamos el overlay de apertura original por el del ticket QR
@@ -164,6 +205,7 @@ function abrirModalTicketQR(invitado) {
 
 /**
  * 📸 RENDERIZADOR BLINDADO CONTRA ERRORES OKLCH (USANDO IFRAME SANDBOX)
+ * Duplica la tarjeta en un entorno virtual aislado para fotografiarla limpiamente con html2canvas.
  */
 function descargarPaseBlindado() {
     const tarjetaOriginal = document.getElementById('tarjetaVipContenedor');
@@ -180,7 +222,7 @@ function descargarPaseBlindado() {
     btnDescargar.innerHTML = "Procesando...";
     btnDescargar.disabled = true;
 
-    // 1. Creamos un iframe en blanco (Sandbox) para aislar por completo el DOM de Tailwind v4
+    // 1. Creamos un iframe en blanco (Sandbox) para aislar por completo el DOM de Tailwind v4 y sus colores experimentales
     const iframe = document.createElement('iframe');
     iframe.style.position = 'absolute';
     iframe.style.width = '400px';
@@ -194,7 +236,7 @@ function descargarPaseBlindado() {
     // 2. Clonamos los estilos internos e inyectamos la estructura limpia sin variables oklch globales
     const clonTarjeta = tarjetaOriginal.cloneNode(true);
     
-    // Quitamos los botones internos del clon para que no salgan en la foto
+    // Quitamos los botones internos del clon para que no salgan impresos en la foto descargada
     const contenedorBotones = clonTarjeta.querySelector('.flex.flex-col.gap-2') || clonTarjeta.querySelector('button')?.parentNode;
     if (contenedorBotones && contenedorBotones !== clonTarjeta) {
         contenedorBotones.remove();
@@ -207,7 +249,6 @@ function descargarPaseBlindado() {
         <head>
             <style>
                 body { margin: 0; padding: 20px; background-color: #f8fafc; display: flex; justify-content: center; }
-                /* Copia de estilos críticos planos para tu tarjeta */
                 #tarjetaVipContenedor {
                     background: #ffffff !important;
                     border-radius: 24px !important;
@@ -229,7 +270,7 @@ function descargarPaseBlindado() {
     // 3. Insertamos el clon en el entorno limpio del iframe
     docIframe.getElementById('render-target').appendChild(clonTarjeta);
 
-    // 4. Ejecutamos html2canvas apuntando al entorno aislado
+    // 4. Ejecutamos html2canvas apuntando directamente al entorno aislado del Iframe
     setTimeout(() => {
         iframe.contentWindow.html2canvas(clonTarjeta, {
             scale: 3,
@@ -242,7 +283,7 @@ function descargarPaseBlindado() {
             enlaceDescarga.href = blobData;
             enlaceDescarga.click();
 
-            // Limpieza
+            // Limpieza del árbol DOM y restauración del estado del botón
             iframe.remove();
             btnDescargar.innerHTML = textoOriginal;
             btnDescargar.disabled = false;
@@ -257,13 +298,15 @@ function descargarPaseBlindado() {
 }
 
 /**
- * 3️⃣ CONSTRUCTOR DINÁMICO DEL MODAL RSVP
+ * 3️⃣ CONSTRUCTOR DINÁMICO DEL MODAL RSVP (Confirmación de asistencia)
+ * Arma las entradas de texto correspondientes según el tipo de invitación configurada desde el backend.
  */
 function armarEstructuraModalAsistencia(invitado) {
     const contenedor = document.getElementById('contenedor-dinamico-rsvp');
     if (!contenedor) return;
     contenedor.innerHTML = ""; 
 
+    // CASO DE USO NOMINAL: Se solicita de forma individual nombre y apellido de cada acompañante
     if (invitado.tipoInvitacion && invitado.tipoInvitacion.toUpperCase() === "NOMINAL") {
         let htmlAcompanantes = `<label style="margin-bottom:10px; display:block; font-weight:600;">Registrar Acompañantes Autorizados (Máx: ${invitado.cupoMaximoOtorgado - 1})</label>`;
         
@@ -277,10 +320,11 @@ function armarEstructuraModalAsistencia(invitado) {
         }
         contenedor.innerHTML = htmlAcompanantes;
     } else {
+        // CASO DE USO GLOBAL/NUMÉRICO: Despliega un menú Select de números planos simple
         let opcionesSelect = `<label>¿Cuántas personas asistirán en total?</label>
                               <select id="cantidad" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-family: 'Montserrat'; margin-top:5px;">`;
         for (let i = 1; i <= invitado.cupoMaximoOtorgado; i++) {
-            opcionesSelect += `<option value="${i}">${i} ${i === 1 ? 'Persona' : 'Personas'}</option>`;
+            optionsSelect += `<option value="${i}">${i} ${i === 1 ? 'Persona' : 'Personas'}</option>`;
         }
         opcionesSelect += `</select>`;
         contenedor.innerHTML = opcionesSelect;
@@ -289,6 +333,7 @@ function armarEstructuraModalAsistencia(invitado) {
 
 /**
  * 4️⃣ CONTROL VISUAL SEGÚN SELECCIÓN (SI ASISTE / NO ASISTE)
+ * Oculta el listado de acompañantes si el usuario selecciona que no asistirá al evento.
  */
 function controlarDespliegueSegunAsistencia() {
     const asisteValue = document.getElementById('asiste').value;
@@ -298,6 +343,7 @@ function controlarDespliegueSegunAsistencia() {
 
 /**
  * 5️⃣ ENVÍO ASÍNCRONO DEL RSVP
+ * Captura el formulario, genera el JSON estructurado y lo despacha hacia el backend de Spring Boot.
  */
 function enviarWhatsApp() {
     const asisteValue = document.getElementById('asiste').value;
@@ -313,6 +359,7 @@ function enviarWhatsApp() {
 
     let resumenWhatsApp = "";
 
+    // Mapeo dinámico si asiste
     if (asisteValue === "si") {
         if (CONFIG_INVITADO.tipoInvitacion === "NOMINAL") {
             const filas = document.querySelectorAll('.fila-acompanante');
@@ -334,14 +381,14 @@ function enviarWhatsApp() {
         payloadRSVP.cantidadConfirmados = 0;
     }
 
-    // Modo Mock local
+    // Interceptor por si se ejecuta en modo Mock de simulación
     if (CONFIG_INVITADO.id === 999) {
         CONFIG_INVITADO.cantidadConfirmados = payloadRSVP.cantidadConfirmados;
         mostrarFeedbackExito(payloadRSVP.asiste, nombreInvitado, asisteValue, resumenWhatsApp, dietaGeneral);
         return;
     }
 
-    // Petición real al Backend Maestro
+    // Petición real vía POST al Backend Maestro de Spring Boot
     fetch(`${API_BASE_URL}/invitados/confirmar?slug=${eventoSlug}&token=${token}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -352,7 +399,7 @@ function enviarWhatsApp() {
         return response.json();
     })
     .then(data => {
-        // Seteamos la cantidad confirmada que devolvió el backend antes de abrir el modal de éxito
+        // Guardamos de forma global el estado confirmado devuelto por el servidor
         CONFIG_INVITADO.cantidadConfirmados = payloadRSVP.cantidadConfirmados;
         mostrarFeedbackExito(payloadRSVP.asiste, nombreInvitado, asisteValue, resumenWhatsApp, dietaGeneral);
     })
@@ -364,9 +411,10 @@ function enviarWhatsApp() {
 
 /**
  * 🌟 MUESTRA EL MODAL DE ÉXITO
+ * Configura los textos del modal intermedio informando que la base de datos se actualizó correctamente.
  */
 function mostrarFeedbackExito(isAsiste, nombreInvitado, asisteValue, resumenWhatsApp, dieta) {
-    cerrarModal(); // Cerramos el de carga de datos
+    cerrarModal(); // Cerramos el de carga de datos iniciales
     
     const titulo = document.getElementById("feedback-titulo");
     const msg = document.getElementById("feedback-mensaje");
@@ -379,7 +427,7 @@ function mostrarFeedbackExito(isAsiste, nombreInvitado, asisteValue, resumenWhat
         if(msg) msg.innerText = "Lamentamos que no puedas asistir. Tu lugar ha sido liberado correctamente.";
     }
 
-    // Configuramos el botón final de WhatsApp dentro del modal
+    // Configuramos el disparador final de WhatsApp dentro del modal
     const btnWA = document.getElementById("btn-finalizar-wa");
     if(btnWA) {
         btnWA.onclick = () => {
@@ -387,12 +435,16 @@ function mostrarFeedbackExito(isAsiste, nombreInvitado, asisteValue, resumenWhat
         };
     }
 
-    // Desplegamos el nuevo modal de confirmación
+    // Desplegamos el nuevo modal de confirmación final en pantalla
     const modalFeedback = document.getElementById('modalFeedback');
     if(modalFeedback) modalFeedback.style.display = 'flex';
     document.body.style.overflow = 'hidden';
 }
 
+/**
+ * 📱 REDIRECCIÓN REDACTADA DE WHATSAPP API
+ * Despacha el mensaje estructurado en texto plano con negritas hacia el teléfono del organizador del evento.
+ */
 function procesarRedireccionWhatsApp(nombreInvitado, asisteValue, resumenWhatsApp, dieta) {
     const telefonoOrganizador = CONFIG_INVITADO?.evento?.telefonoOrganizador || CONFIG_INVITADO?.evento?.telefono || "549123456789";
     let mensajeWA = "";
@@ -417,6 +469,7 @@ function procesarRedireccionWhatsApp(nombreInvitado, asisteValue, resumenWhatsAp
 
 /**
  * 6️⃣ SUGERENCIAS DE MÚSICA CENTRALIZADAS
+ * Escucha el formulario de canciones enviando las recomendaciones de temas directo al DJ.
  */
 const form = document.getElementById('formMusica');
 if (form) {
@@ -439,6 +492,7 @@ if (form) {
         const cancion = document.getElementById('cancionSugerida').value; 
         const nombreOpt = document.getElementById('nombreInvitado').value; 
 
+        // Enlace POST a la API de tracks
         fetch(`${API_BASE_URL}/canciones/evento/${EVENTO_ID}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -466,6 +520,7 @@ if (form) {
 
 /**
  * 7️⃣ AUXILIARES DE MODALES Y EFECTOS
+ * Funciones de apertura, cierre y manipulación del scroll global de la pantalla.
  */
 function abrirModal() { document.getElementById('modalAsistencia').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
 function cerrarModal() { document.getElementById('modalAsistencia').style.display = 'none'; document.body.style.overflow = 'auto'; }
@@ -491,6 +546,7 @@ function cerrarModalFeedback() {
     }
 }
 
+// Copia el alias CBU al portapapeles y cambia el color del botón temporalmente
 function copiarAlias() {
     const alias = document.getElementById('alias-text').innerText;
     navigator.clipboard.writeText(alias).then(() => {
@@ -510,6 +566,7 @@ function copiarAlias() {
 
 /**
  * 8️⃣ FUNCIÓN DE APERTURA GLOBAL (BOTÓN DEL CORAZÓN)
+ * Desvanece el sobre/bienvenida inicial, inicia la música de fondo y activa las vistas dinámicas.
  */
 function abrirInvitacion() {
     // 1. Ocultamos la pantalla de bienvenida con efecto suave
@@ -530,7 +587,7 @@ function abrirInvitacion() {
         mainContent.classList.add('active', 'open'); 
     }
 
-    // 3. Intentamos reproducir la música de fondo automáticamente
+    // 3. Intentamos reproducir la música de fondo automáticamente (Sujeto a políticas del navegador)
     const audio = document.getElementById('musicaFondo');
     if (audio) {
         audio.play().catch(error => {
