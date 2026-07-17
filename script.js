@@ -177,7 +177,7 @@ function inyectarDatosEnPantalla(data) {
 
 /**
  * 🎫 FUNCIÓN PARA POPULAR Y MOSTRAR EL MODAL DEL TICKET QR INTERACTIVO
- * SOLUCIÓN DE CORS IMPLEMENTADA: Convierte el QR externo en Base64 para habilitar descargas.
+ * SOLUCIÓN DE POSICIONAMIENTO Y CORS IMPLEMENTADA: Fuerza al modal a ir al frente.
  */
 function abrirModalTicketQR(invitado) {
     const modalQR = document.getElementById('modalTicketQR');
@@ -214,11 +214,24 @@ function abrirModalTicketQR(invitado) {
             });
     }
 
-    // Cambiamos el overlay de apertura original por el del ticket QR
+    // ============================================================================
+    // 🛡️ BLINDAJE VISUAL: Forzamos al modal a posicionarse arriba de absolutamente todo
+    // ============================================================================
     const overlay = document.getElementById('overlay');
     if (overlay) overlay.style.display = 'none';
 
+    // Sobreescribimos los estilos por JS para garantizar prioridad inapelable
+    modalQR.style.position = 'fixed';
+    modalQR.style.top = '0';
+    modalQR.style.left = '0';
+    modalQR.style.width = '100vw';
+    modalQR.style.height = '100vh';
     modalQR.style.display = 'flex';
+    modalQR.style.justifyContent = 'center';
+    modalQR.style.alignItems = 'center';
+    modalQR.style.zIndex = '999999'; // Capa máxima por encima del footer
+    modalQR.style.backgroundColor = '#f8fafc'; // Forzamos fondo limpio detrás de la tarjeta VIP
+
     document.body.style.overflow = 'hidden';
 }
 
