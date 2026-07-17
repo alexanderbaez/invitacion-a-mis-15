@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
             nombreInvitadoPrincipal: "Alexander Baez (Invitado de Prueba)",
             tipoInvitacion: "NOMINAL",
             cupoMaximoOtorgado: 5,
-            cantidadConfirmados: 5, // Simula que ya confirmó para pruebas de QR
+            cantidadConfirmados: 0, // Simula que inicia sin confirmar
             evento: {
                 id: 10,
                 nombreAnfitrion: "Andrea",
@@ -99,10 +99,6 @@ function inyectarDatosEnPantalla(data) {
     // Renderiza las fechas en mayúsculas para los banners principales
     document.getElementById('txt-fecha-hero').innerText = fechaFormateada.toUpperCase();
     document.getElementById('txt-fecha-salon').innerText = `${fechaFormateada} - 21:00 Horas`;
-
-    // 🕒 INICIALIZADOR DE CUENTA REGRESIVA RECOMENDADO:
-    // Si tenés un script de cuenta regresiva independiente en tu proyecto, toma la variable "fechaData" de acá arriba
-    // Ejemplo: inicializarCronometro(fechaData);
 
     // CORRECCIÓN DEL LINK DE GOOGLE CALENDAR
     const formatGCalDate = (date) => date.toISOString().replace(/-|:|\.\d\d\d/g, "");
@@ -279,7 +275,7 @@ function descargarPaseBlindado() {
         }).then(canvas => {
             const blobData = canvas.toDataURL("image/png");
             const enlaceDescarga = document.createElement('a');
-            enlaceDescarga.download = `pase_${nombreInvitado}.png`;
+            constenlaceDescarga.download = `pase_${nombreInvitado}.png`;
             enlaceDescarga.href = blobData;
             enlaceDescarga.click();
 
@@ -321,10 +317,11 @@ function armarEstructuraModalAsistencia(invitado) {
         contenedor.innerHTML = htmlAcompanantes;
     } else {
         // CASO DE USO GLOBAL/NUMÉRICO: Despliega un menú Select de números planos simple
-        let opcionesSelect = `<label>¿Cuántas personas asistirán en total?</label>
+        // 🛠️ FIX AQUÍ: Se corrigió la variable "optionsSelect" por "opcionesSelect" para evitar el crash del renderizado
+        let opcionesSelect = `<label style="font-weight:600;">¿Cuántas personas asistirán en total?</label>
                               <select id="cantidad" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-family: 'Montserrat'; margin-top:5px;">`;
         for (let i = 1; i <= invitado.cupoMaximoOtorgado; i++) {
-            optionsSelect += `<option value="${i}">${i} ${i === 1 ? 'Persona' : 'Personas'}</option>`;
+            opcionesSelect += `<option value="${i}">${i} ${i === 1 ? 'Persona' : 'Personas'}</option>`;
         }
         opcionesSelect += `</select>`;
         contenedor.innerHTML = opcionesSelect;
@@ -336,7 +333,9 @@ function armarEstructuraModalAsistencia(invitado) {
  * Oculta el listado de acompañantes si el usuario selecciona que no asistirá al evento.
  */
 function controlarDespliegueSegunAsistencia() {
-    const asisteValue = document.getElementById('asiste').value;
+    const elAsiste = document.getElementById('asiste');
+    if (!elAsiste) return;
+    const asisteValue = elAsiste.value;
     const contenedor = document.getElementById('contenedor-dinamico-rsvp');
     if(contenedor) contenedor.style.display = (asisteValue === 'si') ? 'block' : 'none';
 }
@@ -346,9 +345,15 @@ function controlarDespliegueSegunAsistencia() {
  * Captura el formulario, genera el JSON estructurado y lo despacha hacia el backend de Spring Boot.
  */
 function enviarWhatsApp() {
-    const asisteValue = document.getElementById('asiste').value;
-    const dietaGeneral = document.getElementById('dieta').value || "Ninguna";
-    const nombreInvitado = document.getElementById('nombre').value;
+    // Lectura defensiva con respaldos por si algún ID no estuviera en el HTML renderizado
+    const elAsiste = document.getElementById('asiste');
+    const asisteValue = elAsiste ? elAsiste.value : "si";
+
+    const elDieta = document.getElementById('dieta');
+    const dietaGeneral = elDieta ? (elDieta.value || "Ninguna") : "Ninguna";
+
+    const elNombre = document.getElementById('nombre') || document.getElementById('nombreInvitado');
+    const nombreInvitado = elNombre ? (elNombre.value || "Invitado") : "Invitado";
 
     let payloadRSVP = {
         asiste: asisteValue === "si",
@@ -359,22 +364,28 @@ function enviarWhatsApp() {
 
     let resumenWhatsApp = "";
 
-    // Mapeo dinámico si asiste
+    // Mapeo dinámico e híbrido si el invitado confirma que asiste
     if (asisteValue === "si") {
-        if (CONFIG_INVITADO.tipoInvitacion === "NOMINAL") {
+        if (CONFIG_INVITADO && CONFIG_INVITADO.tipoInvitacion && CONFIG_INVITADO.tipoInvitacion.toUpperCase() === "NOMINAL") {
             const filas = document.querySelectorAll('.fila-acompanante');
             filas.forEach(fila => {
-                const name = fila.querySelector('.ac-nombre').value.trim();
-                const restriction = fila.querySelector('.ac-dieta').value.trim() || "Ninguna";
+                const inputNombre = fila.querySelector('.ac-nombre');
+                const inputDieta = fila.querySelector('.ac-dieta');
                 
-                if (name !== "") {
-                    payloadRSVP.acompanantes.push({ nombre: name, dieta: restriction });
-                    resumenWhatsApp += `%0A• *${name}* (Dieta: ${restriction})`;
+                if (inputNombre) {
+                    const name = inputNombre.value.trim();
+                    const restriction = inputDieta ? (inputDieta.value.trim() || "Ninguna") : "Ninguna";
+                    
+                    if (name !== "") {
+                        payloadRSVP.acompanantes.push({ nombre: name, dieta: restriction });
+                        resumenWhatsApp += `%0A• *${name}* (Dieta: ${restriction})`;
+                    }
                 }
             });
             payloadRSVP.cantidadConfirmados = 1 + payloadRSVP.acompanantes.length;
         } else {
-            payloadRSVP.cantidadConfirmados = parseInt(document.getElementById('cantidad').value);
+            const elCantidad = document.getElementById('cantidad');
+            payloadRSVP.cantidadConfirmados = elCantidad ? parseInt(elCantidad.value) : 1;
             resumenWhatsApp = `%0A• *Total asistentes:* ${payloadRSVP.cantidadConfirmados} personas`;
         }
     } else {
@@ -382,7 +393,7 @@ function enviarWhatsApp() {
     }
 
     // Interceptor por si se ejecuta en modo Mock de simulación
-    if (CONFIG_INVITADO.id === 999) {
+    if (CONFIG_INVITADO && CONFIG_INVITADO.id === 999) {
         CONFIG_INVITADO.cantidadConfirmados = payloadRSVP.cantidadConfirmados;
         mostrarFeedbackExito(payloadRSVP.asiste, nombreInvitado, asisteValue, resumenWhatsApp, dietaGeneral);
         return;
@@ -395,12 +406,14 @@ function enviarWhatsApp() {
         body: JSON.stringify(payloadRSVP)
     })
     .then(response => {
-        if (!response.ok) throw new Error("Error en el servidor.");
+        if (!response.ok) throw new Error("Error en el servidor al confirmar asistencia.");
         return response.json();
     })
     .then(data => {
         // Guardamos de forma global el estado confirmado devuelto por el servidor
-        CONFIG_INVITADO.cantidadConfirmados = payloadRSVP.cantidadConfirmados;
+        if (CONFIG_INVITADO) {
+            CONFIG_INVITADO.cantidadConfirmados = payloadRSVP.cantidadConfirmados;
+        }
         mostrarFeedbackExito(payloadRSVP.asiste, nombreInvitado, asisteValue, resumenWhatsApp, dietaGeneral);
     })
     .catch(error => {
@@ -486,11 +499,14 @@ if (form) {
         if (!EVENTO_ID) return;
 
         const btn = document.getElementById('btnEnviarMusica');
-        btn.innerText = "Enviando...";
-        btn.disabled = true;
+        if (btn) {
+            btn.innerText = "Enviando...";
+            btn.disabled = true;
+        }
 
         const cancion = document.getElementById('cancionSugerida').value; 
-        const nombreOpt = document.getElementById('nombreInvitado').value; 
+        const elNombreOpt = document.getElementById('nombreInvitado') || document.getElementById('nombre');
+        const nombreOpt = elNombreOpt ? elNombreOpt.value : "Invitado"; 
 
         // Enlace POST a la API de tracks
         fetch(`${API_BASE_URL}/canciones/evento/${EVENTO_ID}`, {
@@ -503,8 +519,10 @@ if (form) {
         })
         .then(response => {
             if (!response.ok) throw new Error("Error al sugerir tema.");
-            btn.innerText = "Enviar a la Playlist";
-            btn.disabled = false;
+            if (btn) {
+                btn.innerText = "Enviar a la Playlist";
+                btn.disabled = false;
+            }
             document.getElementById('mensajeExito').style.display = 'block';
             document.getElementById('cancionSugerida').value = "";
             setTimeout(() => { document.getElementById('mensajeExito').style.display = 'none'; }, 5000);
@@ -512,8 +530,10 @@ if (form) {
         .catch(error => {
             console.error('Error enviando canción:', error);
             alert("No se pudo registrar la canción en el sistema.");
-            btn.disabled = false;
-            btn.innerText = "Enviar a la Playlist";
+            if (btn) {
+                btn.disabled = false;
+                btn.innerText = "Enviar a la Playlist";
+            }
         });
     });
 }
