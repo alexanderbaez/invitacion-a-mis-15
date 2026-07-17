@@ -507,3 +507,34 @@ function copiarAlias() {
         }
     });
 }
+
+/**
+ * 8️⃣ FUNCIÓN DE APERTURA GLOBAL (BOTÓN DEL CORAZÓN)
+ */
+function abrirInvitacion() {
+    // 1. Ocultamos la pantalla de bienvenida con efecto suave
+    const overlay = document.getElementById('overlay');
+    if (overlay) {
+        overlay.style.opacity = '0';
+        setTimeout(() => { 
+            overlay.style.display = 'none'; 
+        }, 500);
+    }
+
+    // 2. Mostramos el contenido principal de la invitación
+    const mainContent = document.getElementById('main-content');
+    if (mainContent) {
+        mainContent.style.display = 'block'; 
+        mainContent.style.opacity = '1';
+        mainContent.style.visibility = 'visible';
+        mainContent.classList.add('active', 'open'); 
+    }
+
+    // 3. Intentamos reproducir la música de fondo automáticamente
+    const audio = document.getElementById('musicaFondo');
+    if (audio) {
+        audio.play().catch(error => {
+            console.log("La reproducción automática de audio fue retenida por el navegador hasta interactuar:", error);
+        });
+    }
+}
