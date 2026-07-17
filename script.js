@@ -353,7 +353,23 @@ function cerrarModalFeedback() {
 
 function copiarAlias() {
     const alias = document.getElementById('alias-text').innerText;
-    navigator.clipboard.writeText(alias).then(() => {
+    
+    // --- MÉTODO CLÁSICO Y SEGURO (Evita que salte el cartel de permisos en móviles) ---
+    const elementoTemporal = document.createElement('textarea');
+    elementoTemporal.value = alias;
+    elementoTemporal.setAttribute('readonly', ''); // Previene que se abra el teclado virtual en móviles
+    elementoTemporal.style.position = 'absolute';
+    elementoTemporal.style.left = '-9999px'; // Lo sacamos de la pantalla
+    document.body.appendChild(elementoTemporal);
+    
+    // Seleccionamos y copiamos de manera tradicional
+    elementoTemporal.select();
+    elementoTemporal.setSelectionRange(0, 99999); // Para dispositivos iOS
+    
+    try {
+        document.execCommand('copy'); // Ejecuta la copia sin pedir permisos de sistema
+        
+        // Efecto visual de éxito en el botón
         const btn = document.querySelector('.btn-copy');
         if (btn) {
             btn.innerText = "¡COPIADO!";
@@ -365,5 +381,10 @@ function copiarAlias() {
                 btn.style.color = "var(--lacre-oscuro)";
             }, 2000);
         }
-    });
+    } catch (err) {
+        console.error("No se pudo copiar el alias automáticamente: ", err);
+    }
+    
+    // Eliminamos el elemento del DOM
+    document.body.removeChild(elementoTemporal);
 }
