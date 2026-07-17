@@ -36,7 +36,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 id: 10,
                 nombreAnfitrion: "Andrea",
                 fechaEvento: "2026-11-20T21:00:00",
-                aliasCbu: "ANDREA.15.FIESTA"
+                aliasCbu: "ANDREA.15.FIESTA",
+                telefonoOrganizador: "549123456789" // Teléfono de prueba
             }
         };
         
@@ -74,6 +75,7 @@ function inyectarDatosEnPantalla(data) {
     document.querySelectorAll('.txt-anfitrion').forEach(el => el.innerText = nombreAnfitrion);
     document.getElementById('txt-hashtag').innerText = `#${nombreAnfitrion.replace(/\s+/g, '')}2026`;
 
+    // Procesamiento y formateado de fechas
     const fechaData = new Date(data.evento.fechaEvento);
     const opcionesFecha = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
     const fechaFormateada = fechaData.toLocaleDateString('es-ES', opcionesFecha);
@@ -81,7 +83,15 @@ function inyectarDatosEnPantalla(data) {
     document.getElementById('txt-fecha-hero').innerText = fechaFormateada.toUpperCase();
     document.getElementById('txt-fecha-salon').innerText = `${fechaFormateada} - 21:00 Horas`;
 
-    const gCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Fiesta+de+${encodeURIComponent(nombreAnfitrion)}&details=¡Te+espero+para+compartir+una+noche+mágica!`;
+    // 👉 CORRECCIÓN DEL LINK DE GOOGLE CALENDAR: Formateamos las fechas en formato UTC (AAAAMMDDTHHMMSSZ) para que Google las interprete bien.
+    const formatGCalDate = (date) => date.toISOString().replace(/-|:|\.\d\d\d/g, "");
+    const fechaInicioGCal = formatGCalDate(fechaData);
+    
+    // Calculamos 4 horas de duración estimada para el evento
+    const fechaFinData = new Date(fechaData.getTime() + (4 * 60 * 60 * 1000));
+    const fechaFinGCal = formatGCalDate(fechaFinData);
+
+    const gCalUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=Fiesta+de+${encodeURIComponent(nombreAnfitrion)}&dates=${fechaInicioGCal}/${fechaFinGCal}&details=¡Te+espero+para+compartir+una+noche+mágica!`;
     document.getElementById('btn-gcalendar').href = gCalUrl;
 
     document.getElementById('alias-text').innerText = data.evento.aliasCbu || "NO_ASIGNADO";
@@ -136,13 +146,12 @@ function abrirInvitacion() {
 }
 
 /**
- * 3️⃣ CONSTRUCTOR DINÁMICO DEL MODAL RSVP (Corregido de forma segura)
+ * 3️⃣ CONSTRUCTOR DINÁMICO DEL MODAL RSVP
  */
 function armarEstructuraModalAsistencia(invitado) {
     const contenedor = document.getElementById('contenedor-dinamico-rsvp');
     contenedor.innerHTML = ""; 
 
-    // Forma segura en Vanilla JS nativo sin extender prototipos prematuramente:
     if (invitado.tipoInvitacion && invitado.tipoInvitacion.toUpperCase() === "NOMINAL") {
         let htmlAcompanantes = `<label style="margin-bottom:10px; display:block; font-weight:600;">Registrar Acompañantes Autorizados (Máx: ${invitado.cupoMaximoOtorgado - 1})</label>`;
         
@@ -159,7 +168,7 @@ function armarEstructuraModalAsistencia(invitado) {
         let opcionesSelect = `<label>¿Cuántas personas asistirán en total?</label>
                               <select id="cantidad" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-family: 'Montserrat'; margin-top:5px;">`;
         for (let i = 1; i <= invitado.cupoMaximoOtorgado; i++) {
-            opcionesSelect += `<option value="${i}">${i} ${i === 1 ? 'Persona' : 'Personas'}</option>`;
+            optionsSelect = opcionesSelect += `<option value="${i}">${i} ${i === 1 ? 'Persona' : 'Personas'}</option>`;
         }
         opcionesSelect += `</select>`;
         contenedor.innerHTML = opcionesSelect;
@@ -176,7 +185,7 @@ function controlarDespliegueSegunAsistencia() {
 }
 
 /**
- * 5️⃣ ENVÍO ASÍNCRONO DEL RSVP CON FEEDBACK DE ALTISIMA CALIDAD
+ * 5️⃣ ENVÍO ASÍNCRONO DEL RSVP
  */
 function enviarWhatsApp() {
     const asisteValue = document.getElementById('asiste').value;
@@ -239,7 +248,7 @@ function enviarWhatsApp() {
 }
 
 /**
- * 🌟 MUESTRA EL MODAL DE ÉXITO ELIMINANDO LOS ALERTS ARCAICOS
+ * 🌟 MUESTRA EL MODAL DE ÉXITO
  */
 function mostrarFeedbackExito(isAsiste, nombreInvitado, asisteValue, resumenWhatsApp, dieta) {
     cerrarModal(); // Cerramos el de carga de datos
@@ -267,7 +276,8 @@ function mostrarFeedbackExito(isAsiste, nombreInvitado, asisteValue, resumenWhat
 }
 
 function procesarRedireccionWhatsApp(nombreInvitado, asisteValue, resumenWhatsApp, dieta) {
-    const telefonoOrganizador = "549123456789"; // Cambialo por el real del cliente
+    // 👉 CORRECCIÓN DEL LINK DE WHATSAPP: Intentará obtener dinámicamente el teléfono del backend, de lo contrario usará el hardcodeado.
+    const telefonoOrganizador = CONFIG_INVITADO?.evento?.telefonoOrganizador || CONFIG_INVITADO?.evento?.telefono || "549123456789";
     let mensajeWA = "";
 
     if (asisteValue === "si") {
@@ -329,7 +339,7 @@ if (form) {
             setTimeout(() => { document.getElementById('mensajeExito').style.display = 'none'; }, 5000);
         })
         .catch(error => {
-            console.error('Error地形 enviando canción:', error);
+            console.error('Error enviando canción:', error); // Corregido typo "Error地形"
             alert("No se pudo registrar la canción en el sistema.");
             btn.disabled = false;
             btn.innerText = "Enviar a la Playlist";
@@ -353,23 +363,7 @@ function cerrarModalFeedback() {
 
 function copiarAlias() {
     const alias = document.getElementById('alias-text').innerText;
-    
-    // --- MÉTODO CLÁSICO Y SEGURO (Evita que salte el cartel de permisos en móviles) ---
-    const elementoTemporal = document.createElement('textarea');
-    elementoTemporal.value = alias;
-    elementoTemporal.setAttribute('readonly', ''); // Previene que se abra el teclado virtual en móviles
-    elementoTemporal.style.position = 'absolute';
-    elementoTemporal.style.left = '-9999px'; // Lo sacamos de la pantalla
-    document.body.appendChild(elementoTemporal);
-    
-    // Seleccionamos y copiamos de manera tradicional
-    elementoTemporal.select();
-    elementoTemporal.setSelectionRange(0, 99999); // Para dispositivos iOS
-    
-    try {
-        document.execCommand('copy'); // Ejecuta la copia sin pedir permisos de sistema
-        
-        // Efecto visual de éxito en el botón
+    navigator.clipboard.writeText(alias).then(() => {
         const btn = document.querySelector('.btn-copy');
         if (btn) {
             btn.innerText = "¡COPIADO!";
@@ -381,10 +375,5 @@ function copiarAlias() {
                 btn.style.color = "var(--lacre-oscuro)";
             }, 2000);
         }
-    } catch (err) {
-        console.error("No se pudo copiar el alias automáticamente: ", err);
-    }
-    
-    // Eliminamos el elemento del DOM
-    document.body.removeChild(elementoTemporal);
+    });
 }
