@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
             evento: {
                 id: 10,
                 nombreAnfitrion: "Andrea",
-                fechaEvento: "2026-11-20T21:00:00", // 👈 AQUÍ PODÉS CAMBIAR LA FECHA DE PRUEBA LOCAL (Formato ISO)
+                fechaEvento: "2026-11-20T21:00:00", // Formato ISO
                 aliasCbu: "ANDREA.15.FIESTA",
                 telefonoOrganizador: "549123456789"
             }
@@ -140,14 +140,37 @@ function inyectarDatosEnPantalla(data) {
     // Diseña la lógica interna del modal de asistencia (Si es por lista nominal o numérica)
     armarEstructuraModalAsistencia(data);
 
-    // 🚀 DETECTOR AUTO-OPEN WHATSAPP E INVERSION DE FLUJO:
-    // Si el invitado ya tiene pases asignados en el back, saltea la invitación y le monta el ticket QR directo en la cara.
+    // ============================================================================
+    // 🚀 DETECTOR BLINDADO: MODO PASE VIP DIRECTO (CORREGIDO)
+    // ============================================================================
     if (data.cantidadConfirmados && parseInt(data.cantidadConfirmados) > 0) {
-        console.log("Invitado con pases confirmados detectado. Abriendo Ticket QR directamente.");
+        console.log("🔥 [MODO PASE DETECTADO] Forzando renderizado exclusivo del QR.");
+        
+        // 1. Apagamos el preloader por completo si seguía activo
+        const preloader = document.getElementById("preloader");
+        if (preloader) preloader.classList.add("loader-hidden");
+
+        // 2. Ocultamos el sobre de bienvenida (overlay)
+        const overlay = document.getElementById('overlay');
+        if (overlay) overlay.style.display = 'none';
+        
+        // 3. Ocultamos POR COMPLETO la estructura tradicional de la invitación de fondo
+        const mainContent = document.getElementById('main-content');
+        if (mainContent) {
+            mainContent.style.display = 'none'; 
+            mainContent.style.opacity = '0';
+            mainContent.style.visibility = 'hidden';
+        }
+
+        // 4. Forzamos un fondo limpio y elegante en el body adaptado a la tarjeta de accesos
+        document.body.style.backgroundColor = '#f8fafc';
+
+        // 5. Desplegamos el ticket QR de forma aislada
         abrirModalTicketQR(data);
+        return; // Cortamos circuito drásticamente para evitar cargas de la invitación regular
     }
 
-    // Fin del circuito: Ocultamos el spinner de carga inicial
+    // Fin del circuito regular: Ocultamos el spinner de carga inicial si no fue redirigido al QR
     const preloader = document.getElementById("preloader");
     if (preloader) preloader.classList.add("loader-hidden");
 }
@@ -275,7 +298,7 @@ function descargarPaseBlindado() {
         }).then(canvas => {
             const blobData = canvas.toDataURL("image/png");
             const enlaceDescarga = document.createElement('a');
-            constenlaceDescarga.download = `pase_${nombreInvitado}.png`;
+            enlaceDescarga.download = `pase_${nombreInvitado}.png`;
             enlaceDescarga.href = blobData;
             enlaceDescarga.click();
 
@@ -317,7 +340,6 @@ function armarEstructuraModalAsistencia(invitado) {
         contenedor.innerHTML = htmlAcompanantes;
     } else {
         // CASO DE USO GLOBAL/NUMÉRICO: Despliega un menú Select de números planos simple
-        // 🛠️ FIX AQUÍ: Se corrigió la variable "optionsSelect" por "opcionesSelect" para evitar el crash del renderizado
         let opcionesSelect = `<label style="font-weight:600;">¿Cuántas personas asistirán en total?</label>
                               <select id="cantidad" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-family: 'Montserrat'; margin-top:5px;">`;
         for (let i = 1; i <= invitado.cupoMaximoOtorgado; i++) {
@@ -332,7 +354,7 @@ function armarEstructuraModalAsistencia(invitado) {
  * 4️⃣ CONTROL VISUAL SEGÚN SELECCIÓN (SI ASISTE / NO ASISTE)
  * Oculta el listado de acompañantes si el usuario selecciona que no asistirá al evento.
  */
-function controlarDespliegueSegunAsistencia() {
+function controllingDespliegueSegunAsistencia() {
     const elAsiste = document.getElementById('asiste');
     if (!elAsiste) return;
     const asisteValue = elAsiste.value;
@@ -557,8 +579,7 @@ function cerrarModalFeedback() {
     document.getElementById('modalFeedback').style.display = 'none'; 
     document.body.style.overflow = 'auto'; 
     
-    // Si el usuario confirmó asistencia, en lugar de recargar a la pantalla inicial en blanco,
-    // forzamos la apertura directa de su nuevo ticket QR.
+    // Si el usuario confirmó asistencia, forzamos la apertura directa de su nuevo ticket QR.
     if (CONFIG_INVITADO && CONFIG_INVITADO.cantidadConfirmados > 0) {
         abrirModalTicketQR(CONFIG_INVITADO);
     } else {
