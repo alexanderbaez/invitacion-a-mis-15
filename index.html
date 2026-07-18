@@ -241,9 +241,18 @@
             <button class="btn-lacre" onclick="abrirModal()">Confirmar Asistencia</button>
         </section>
 
+        <section class="letter-section">
+            <div class="paper-envelope">
+                <div class="paper-content">
+                    <p class="final-quote">"Gracias por ser parte de mi historia y por acompañarme en esta noche que guardaré siempre en mi corazón."</p>
+                    <p class="final-signature txt-anfitrion">...</p>
+                </div>
+            </div>
+        </section>
+
     </main>
 
-    <!-- 1️⃣ MODAL FORMULARIO DE ASISTENCIA (LIMPIO Y SIN DUPLICAR) -->
+    <!-- 1️⃣ MODAL FORMULARIO DE ASISTENCIA -->
     <div id="modalAsistencia" class="modal-overlay">
         <div class="modal-content">
             <span class="close-btn" onclick="cerrarModal()">×</span>
@@ -290,7 +299,7 @@
         </div>
     </div>
 
-    <!-- 3️⃣ MODAL DATOS DE REGALO (LIMPIO Y SIN DUPLICAR) -->
+    <!-- 3️⃣ MODAL DATOS DE REGALO -->
     <div id="modalRegalo" class="modal-overlay">
         <div class="modal-content">
             <span class="close-btn" onclick="cerrarModalRegalo()">×</span>
@@ -308,9 +317,9 @@
         </div>
     </div>
 
-    <!-- 🎫 🔥 NUEVO CONTENEDOR: MODAL DEL TICKET QR INTERACTIVO (Requerido por script.js) -->
+    <!-- 🎫 MODAL DEL TICKET QR INTERACTIVO -->
     <div id="modalTicketQR" style="display: none;">
-        <div id="tarjetaVipContenedor" style="background: #ffffff; border-radius: 24px; padding: 24px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); width: 340px; text-align: center; font-family: 'Montserrat', sans-serif;">
+        <div id="tarjetaVipContenedor" style="background: #ffffff; border-radius: 24px; padding: 24px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); width: 340px; text-align: center; font-family: 'Montserrat', sans-serif; margin: 0 auto;">
             <h2 style="font-size: 1.5rem; color: #1e293b; margin-bottom: 5px; font-weight: 700; letter-spacing: 0.05em;">PASE VIP EXCLUSIVO</h2>
             <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 20px; text-transform: uppercase;">Presentar en puerta</p>
             
@@ -323,22 +332,13 @@
                 <p id="qrTicketCupo" style="color: #64748b; font-size: 0.95rem; margin: 5px 0 0 0; font-weight: 500;">1 pase</p>
             </div>
 
-            <div class="flex flex-col gap-2">
+            <div style="display: flex; flex-direction: column; gap: 8px;">
                 <button id="btnDescargarPasePNG" style="background-color: #0f172a; color: #ffffff; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 600; width: 100%; cursor: pointer;">
                     Descargar Pase Digital
                 </button>
             </div>
         </div>
     </div>
-
-    <section class="letter-section">
-        <div class="paper-envelope">
-            <div class="paper-content">
-                <p class="final-quote">"Gracias por ser parte de mi historia y por acompañarme en esta noche que guardaré siempre en mi corazón."</p>
-                <p class="final-signature txt-anfitrion">...</p>
-            </div>
-        </div>
-    </section>
 
     <footer class="developer-footer-v2">
         <div class="footer-container">
@@ -358,7 +358,7 @@
         </div>
     </footer>
 
-    <!-- Cargamos la librería html2canvas necesaria para capturar fotos en el script -->
+    <!-- Librería html2canvas necesaria para capturar fotos en el script -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="script.js"></script>
 </body>
