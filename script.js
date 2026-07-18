@@ -38,7 +38,7 @@ document.addEventListener("DOMContentLoaded", () => {
             nombreInvitadoPrincipal: "Alexander Baez (Invitado de Prueba)",
             tipoInvitacion: "NOMINAL",
             cupoMaximoOtorgado: 5,
-            cantidadConfirmados: 0, // Simula que inicia sin confirmar
+            amountConfirmados: 0, // Simula que inicia sin confirmar
             evento: {
                 id: 10,
                 nombreAnfitrion: "Andrea",
@@ -141,20 +141,20 @@ function inyectarDatosEnPantalla(data) {
     armarEstructuraModalAsistencia(data);
 
     // ============================================================================
-    // 🚀 DETECTOR BLINDADO: MODO PASE VIP DIRECTO (CORREGIDO)
+    // 🚀 DETECTOR BLINDADO INTERCEPTOR: MODO PASE VIP DIRECTO
     // ============================================================================
     if (data.cantidadConfirmados && parseInt(data.cantidadConfirmados) > 0) {
-        console.log("🔥 [MODO PASE DETECTADO] Forzando renderizado exclusivo del QR.");
+        console.log("🔥 [MODO PASE DETECTADO] Forzando renderizado exclusivo del QR y apagando el layout base.");
         
-        // 1. Apagamos el preloader por completo si seguía activo
+        // 1. Desactivamos el preloader de carga
         const preloader = document.getElementById("preloader");
         if (preloader) preloader.classList.add("loader-hidden");
 
-        // 2. Ocultamos el sobre de bienvenida (overlay)
+        // 2. Quitamos el sobre inicial
         const overlay = document.getElementById('overlay');
         if (overlay) overlay.style.display = 'none';
         
-        // 3. Ocultamos POR COMPLETO la estructura tradicional de la invitación de fondo
+        // 3. Ocultamos por completo el cuerpo principal de la tarjeta de invitación
         const mainContent = document.getElementById('main-content');
         if (mainContent) {
             mainContent.style.display = 'none'; 
@@ -162,26 +162,40 @@ function inyectarDatosEnPantalla(data) {
             mainContent.style.visibility = 'hidden';
         }
 
-        // 4. Forzamos un fondo limpio y elegante en el body adaptado a la tarjeta de accesos
-        document.body.style.backgroundColor = '#f8fafc';
+        // 4. Limpieza de elementos huérfanos fuera de main-content (como firmas fijas o secciones de firmas)
+        document.querySelectorAll('.final-signature, footer, section, .creative-developer, center').forEach(elemento => {
+            // Evaluamos que no sea hijo ni contenga al modal del QR antes de apagarlo
+            if (!elemento.contains(document.getElementById('modalTicketQR'))) {
+                elemento.style.display = 'none';
+                elemento.style.visibility = 'hidden';
+                elemento.style.opacity = '0';
+            }
+        });
 
-        // 5. Desplegamos el ticket QR de forma aislada
+        // 5. Adaptamos el lienzo base del body
+        document.body.style.backgroundColor = '#f8fafc';
+        document.body.style.backgroundImage = 'none';
+
+        // 6. Ejecutamos la apertura táctica de la tarjeta QR
         abrirModalTicketQR(data);
-        return; // Cortamos circuito drásticamente para evitar cargas de la invitación regular
+        return; 
     }
 
-    // Fin del circuito regular: Ocultamos el spinner de carga inicial si no fue redirigido al QR
+    // Fin del circuito regular
     const preloader = document.getElementById("preloader");
     if (preloader) preloader.classList.add("loader-hidden");
 }
 
 /**
  * 🎫 FUNCIÓN PARA POPULAR Y MOSTRAR EL MODAL DEL TICKET QR INTERACTIVO
- * SOLUCIÓN DE POSICIONAMIENTO Y CORS IMPLEMENTADA: Fuerza al modal a ir al frente.
+ * SOLUCIÓN DE COEXISTENCIA: Resetea clases CSS y fuerza inyección en la capa superior absoluta.
  */
 function abrirModalTicketQR(invitado) {
     const modalQR = document.getElementById('modalTicketQR');
-    if (!modalQR) return;
+    if (!modalQR) {
+        console.error("No se encontró el contenedor con ID 'modalTicketQR' en el DOM.");
+        return;
+    }
 
     // Asignamos textos dinámicos a la tarjeta VIP dentro del modal
     const qrTicketNombre = document.getElementById('qrTicketNombre');
@@ -193,17 +207,16 @@ function abrirModalTicketQR(invitado) {
     
     // Solución del bloqueo de CORS interceptando el origen de la imagen externa
     if (qrTicketImg && token) {
-        qrTicketImg.removeAttribute('src'); // Limpieza preventiva contra bugs de caché
+        qrTicketImg.removeAttribute('src'); 
         
         const urlQrExterna = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(token)}`;
         
-        // Efectuamos una conversión limpia a Base64 local destruyendo el bloqueo de CORS del Canvas
         fetch(urlQrExterna)
             .then(response => response.blob())
             .then(blob => {
                 const reader = new FileReader();
                 reader.onloadend = () => {
-                    qrTicketImg.src = reader.result; // Origen local "data:image/png..." inocuo
+                    qrTicketImg.src = reader.result; 
                 };
                 reader.readAsDataURL(blob);
             })
@@ -215,22 +228,38 @@ function abrirModalTicketQR(invitado) {
     }
 
     // ============================================================================
-    // 🛡️ BLINDAJE VISUAL: Forzamos al modal a posicionarse arriba de absolutamente todo
+    // 🛡️ RESETEO Y CONFIGURACIÓN INAPELABLE DE ESTILOS POR JAVASCRIPT
     // ============================================================================
     const overlay = document.getElementById('overlay');
     if (overlay) overlay.style.display = 'none';
 
-    // Sobreescribimos los estilos por JS para garantizar prioridad inapelable
+    // Limpiamos las clases previas de Tailwind que puedan forzar opacidad 0 o escala 0
+    modalQR.className = ''; 
+    
+    // Inyectamos estilos en línea con máxima jerarquía
     modalQR.style.position = 'fixed';
     modalQR.style.top = '0';
     modalQR.style.left = '0';
     modalQR.style.width = '100vw';
     modalQR.style.height = '100vh';
     modalQR.style.display = 'flex';
+    modalQR.style.flexDirection = 'column';
     modalQR.style.justifyContent = 'center';
     modalQR.style.alignItems = 'center';
-    modalQR.style.zIndex = '999999'; // Capa máxima por encima del footer
-    modalQR.style.backgroundColor = '#f8fafc'; // Forzamos fondo limpio detrás de la tarjeta VIP
+    modalQR.style.zIndex = '2147483647'; // El z-index máximo permitido en navegadores de 32 bits
+    modalQR.style.backgroundColor = '#f8fafc'; 
+    modalQR.style.opacity = '1';
+    modalQR.style.visibility = 'visible';
+    modalQR.style.transform = 'none';
+
+    // Aseguramos que los contenedores hijos inmediatos del modal sean visibles
+    const tarjetaInterna = document.getElementById('tarjetaVipContenedor') || modalQR.firstElementChild;
+    if (tarjetaInterna) {
+        tarjetaInterna.style.display = 'block';
+        tarjetaInterna.style.opacity = '1';
+        tarjetaInterna.style.visibility = 'visible';
+        tarjetaInterna.style.transform = 'none';
+    }
 
     document.body.style.overflow = 'hidden';
 }
@@ -380,7 +409,6 @@ function controllingDespliegueSegunAsistencia() {
  * Captura el formulario, genera el JSON estructurado y lo despacha hacia el backend de Spring Boot.
  */
 function enviarWhatsApp() {
-    // Lectura defensiva con respaldos por si algún ID no estuviera en el HTML renderizado
     const elAsiste = document.getElementById('asiste');
     const asisteValue = elAsiste ? elAsiste.value : "si";
 
@@ -399,7 +427,6 @@ function enviarWhatsApp() {
 
     let resumenWhatsApp = "";
 
-    // Mapeo dinámico e híbrido si el invitado confirma que asiste
     if (asisteValue === "si") {
         if (CONFIG_INVITADO && CONFIG_INVITADO.tipoInvitacion && CONFIG_INVITADO.tipoInvitacion.toUpperCase() === "NOMINAL") {
             const filas = document.querySelectorAll('.fila-acompanante');
@@ -427,14 +454,12 @@ function enviarWhatsApp() {
         payloadRSVP.cantidadConfirmados = 0;
     }
 
-    // Interceptor por si se ejecuta en modo Mock de simulación
     if (CONFIG_INVITADO && CONFIG_INVITADO.id === 999) {
         CONFIG_INVITADO.cantidadConfirmados = payloadRSVP.cantidadConfirmados;
         mostrarFeedbackExito(payloadRSVP.asiste, nombreInvitado, asisteValue, resumenWhatsApp, dietaGeneral);
         return;
     }
 
-    // Petición real vía POST al Backend Maestro de Spring Boot
     fetch(`${API_BASE_URL}/invitados/confirmar?slug=${eventoSlug}&token=${token}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -445,7 +470,6 @@ function enviarWhatsApp() {
         return response.json();
     })
     .then(data => {
-        // Guardamos de forma global el estado confirmado devuelto por el servidor
         if (CONFIG_INVITADO) {
             CONFIG_INVITADO.cantidadConfirmados = payloadRSVP.cantidadConfirmados;
         }
@@ -462,7 +486,7 @@ function enviarWhatsApp() {
  * Configura los textos del modal intermedio informando que la base de datos se actualizó correctamente.
  */
 function mostrarFeedbackExito(isAsiste, nombreInvitado, asisteValue, resumenWhatsApp, dieta) {
-    cerrarModal(); // Cerramos el de carga de datos iniciales
+    cerrarModal(); 
     
     const titulo = document.getElementById("feedback-titulo");
     const msg = document.getElementById("feedback-mensaje");
@@ -475,7 +499,6 @@ function mostrarFeedbackExito(isAsiste, nombreInvitado, asisteValue, resumenWhat
         if(msg) msg.innerText = "Lamentamos que no puedas asistir. Tu lugar ha sido liberado correctamente.";
     }
 
-    // Configuramos el disparador final de WhatsApp dentro del modal
     const btnWA = document.getElementById("btn-finalizar-wa");
     if(btnWA) {
         btnWA.onclick = () => {
@@ -483,7 +506,6 @@ function mostrarFeedbackExito(isAsiste, nombreInvitado, asisteValue, resumenWhat
         };
     }
 
-    // Desplegamos el nuevo modal de confirmación final en pantalla
     const modalFeedback = document.getElementById('modalFeedback');
     if(modalFeedback) modalFeedback.style.display = 'flex';
     document.body.style.overflow = 'hidden';
@@ -543,7 +565,6 @@ if (form) {
         const elNombreOpt = document.getElementById('nombreInvitado') || document.getElementById('nombre');
         const nombreOpt = elNombreOpt ? elNombreOpt.value : "Invitado"; 
 
-        // Enlace POST a la API de tracks
         fetch(`${API_BASE_URL}/canciones/evento/${EVENTO_ID}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -575,7 +596,6 @@ if (form) {
 
 /**
  * 7️⃣ AUXILIARES DE MODALES Y EFECTOS
- * Funciones de apertura, cierre y manipulación del scroll global de la pantalla.
  */
 function abrirModal() { document.getElementById('modalAsistencia').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
 function cerrarModal() { document.getElementById('modalAsistencia').style.display = 'none'; document.body.style.overflow = 'auto'; }
@@ -592,7 +612,6 @@ function cerrarModalFeedback() {
     document.getElementById('modalFeedback').style.display = 'none'; 
     document.body.style.overflow = 'auto'; 
     
-    // Si el usuario confirmó asistencia, forzamos la apertura directa de su nuevo ticket QR.
     if (CONFIG_INVITADO && CONFIG_INVITADO.cantidadConfirmados > 0) {
         abrirModalTicketQR(CONFIG_INVITADO);
     } else {
@@ -600,7 +619,6 @@ function cerrarModalFeedback() {
     }
 }
 
-// Copia el alias CBU al portapapeles y cambia el color del botón temporalmente
 function copiarAlias() {
     const alias = document.getElementById('alias-text').innerText;
     navigator.clipboard.writeText(alias).then(() => {
@@ -620,10 +638,8 @@ function copiarAlias() {
 
 /**
  * 8️⃣ FUNCIÓN DE APERTURA GLOBAL (BOTÓN DEL CORAZÓN)
- * Desvanece el sobre/bienvenida inicial, inicia la música de fondo y activa las vistas dinámicas.
  */
 function abrirInvitacion() {
-    // 1. Ocultamos la pantalla de bienvenida con efecto suave
     const overlay = document.getElementById('overlay');
     if (overlay) {
         overlay.style.opacity = '0';
@@ -632,7 +648,6 @@ function abrirInvitacion() {
         }, 500);
     }
 
-    // 2. Mostramos el contenido principal de la invitación
     const mainContent = document.getElementById('main-content');
     if (mainContent) {
         mainContent.style.display = 'block'; 
@@ -641,11 +656,10 @@ function abrirInvitacion() {
         mainContent.classList.add('active', 'open'); 
     }
 
-    // 3. Intentamos reproducir la música de fondo automáticamente (Sujeto a políticas del navegador)
     const audio = document.getElementById('musicaFondo');
     if (audio) {
         audio.play().catch(error => {
-            console.log("La reproducción automática de audio fue retenida por el navegador hasta interactuar:", error);
+            console.log("La reproducción automática de audio fue retenida por el navegador:", error);
         });
     }
 }
