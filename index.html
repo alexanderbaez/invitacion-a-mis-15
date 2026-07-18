@@ -25,7 +25,6 @@
 
     <div id="overlay" class="overlay">
         <div class="envelope-wrapper">
-            <!-- Mantenemos el onclick global apuntando a la función corregida -->
             <div class="wax-seal-heart" onclick="abrirInvitacion()">
                 <div class="seal-content">
                     <span class="initial txt-anfitrion">Abrir</span>
@@ -244,6 +243,7 @@
 
     </main>
 
+    <!-- 1️⃣ MODAL FORMULARIO DE ASISTENCIA (LIMPIO Y SIN DUPLICAR) -->
     <div id="modalAsistencia" class="modal-overlay">
         <div class="modal-content">
             <span class="close-btn" onclick="cerrarModal()">×</span>
@@ -255,7 +255,7 @@
                 </div>
                 <div class="form-group">
                     <label>¿Asistirás?</label>
-                    <select id="asiste" required onchange="controlarDespliegueSegunAsistencia()">
+                    <select id="asiste" required onchange="controllingDespliegueSegunAsistencia()">
                         <option value="si">¡Sí, ahí estaré!</option>
                         <option value="no">Lo siento, no puedo</option>
                     </select>
@@ -272,36 +272,7 @@
         </div>
     </div>
 
-    <!-- 1️⃣ MODAL FORMULARIO DE ASISTENCIA -->
-    <div id="modalAsistencia" class="modal-overlay">
-        <div class="modal-content">
-            <span class="close-btn" onclick="cerrarModal()">×</span>
-            <h3 class="hero-main-name" style="font-size: 2.5rem; color: var(--lacre-oscuro); margin-bottom:10px;">Asistencia</h3>
-            <form id="rsvpForm">
-                <div class="form-group">
-                    <label>Invitado Principal</label>
-                    <input type="text" id="nombre" required readonly>
-                </div>
-                <div class="form-group">
-                    <label>¿Asistirás?</label>
-                    <select id="asiste" required onchange="controlarDespliegueSegunAsistencia()">
-                        <option value="si">¡Sí, ahí estaré!</option>
-                        <option value="no">Lo siento, no puedo</option>
-                    </select>
-                </div>
-                
-                <div id="contenedor-dinamico-rsvp" class="form-group"></div>
-
-                <div class="form-group">
-                    <label>Restricciones alimentarias generales</label>
-                    <input type="text" id="dieta" placeholder="Ej: Celíaco, Vegano, ninguno">
-                </div>
-                <button type="button" onclick="enviarWhatsApp()" class="btn-lacre">Confirmar Asistencia</button>
-            </form>
-        </div>
-    </div>
-
-    <!-- 2️⃣ 🔥 NUEVO: MODAL DE FEEDBACK Y CIERRE DE LUJO (Adiós Alerts arcaicos) -->
+    <!-- 2️⃣ MODAL DE FEEDBACK POST-CONFIRMACIÓN -->
     <div id="modalFeedback" class="modal-overlay" style="display: none;">
         <div class="modal-content" style="text-align: center; padding: 30px;">
             <div class="success-icon-gold" style="font-size: 3.5rem; color: var(--oro); margin-bottom: 15px;">✨</div>
@@ -319,7 +290,7 @@
         </div>
     </div>
 
-    <!-- 3️⃣ MODAL DATOS DE REGALO -->
+    <!-- 3️⃣ MODAL DATOS DE REGALO (LIMPIO Y SIN DUPLICAR) -->
     <div id="modalRegalo" class="modal-overlay">
         <div class="modal-content">
             <span class="close-btn" onclick="cerrarModalRegalo()">×</span>
@@ -337,19 +308,25 @@
         </div>
     </div>
 
-    <div id="modalRegalo" class="modal-overlay">
-        <div class="modal-content">
-            <span class="close-btn" onclick="cerrarModalRegalo()">×</span>
-            <h3 class="hero-main-name" style="font-size: 2.2rem; color: var(--lacre-oscuro);">Mis Sueños</h3>
-            <p class="intro-text" style="font-size: 0.9rem;">Tu presencia es mi mayor regalo, pero si deseas colaborar con mis sueños o mi viaje...</p>
-            <div class="alias-card">
-                <small>ALIAS</small>
-                <p id="alias-text">CARGANDO...</p>
-                <button class="btn-copy" onclick="copiarAlias()">COPIAR ALIAS</button>
+    <!-- 🎫 🔥 NUEVO CONTENEDOR: MODAL DEL TICKET QR INTERACTIVO (Requerido por script.js) -->
+    <div id="modalTicketQR" style="display: none;">
+        <div id="tarjetaVipContenedor" style="background: #ffffff; border-radius: 24px; padding: 24px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1); width: 340px; text-align: center; font-family: 'Montserrat', sans-serif;">
+            <h2 style="font-size: 1.5rem; color: #1e293b; margin-bottom: 5px; font-weight: 700; letter-spacing: 0.05em;">PASE VIP EXCLUSIVO</h2>
+            <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 20px; text-transform: uppercase;">Presentar en puerta</p>
+            
+            <div style="background: #f1f5f9; padding: 15px; border-radius: 16px; display: inline-block; margin-bottom: 20px;">
+                <img id="qrTicketImg" alt="Código QR de Acceso" style="width: 200px; height: 200px; display: block; margin: 0 auto;" />
             </div>
-            <div class="cbu-info" style="margin-top: 20px; font-family: 'Montserrat'; font-size: 0.8rem; color: #666;">
-                <p id="txt-cbu">CBU: Cargando...</p>
-                <p>Titular del Evento</p>
+            
+            <div style="margin-bottom: 25px;">
+                <h3 id="qrTicketNombre" style="font-size: 1.2rem; color: #0f172a; margin: 0; font-weight: 600;">Cargando nombre...</h3>
+                <p id="qrTicketCupo" style="color: #64748b; font-size: 0.95rem; margin: 5px 0 0 0; font-weight: 500;">1 pase</p>
+            </div>
+
+            <div class="flex flex-col gap-2">
+                <button id="btnDescargarPasePNG" style="background-color: #0f172a; color: #ffffff; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 600; width: 100%; cursor: pointer;">
+                    Descargar Pase Digital
+                </button>
             </div>
         </div>
     </div>
@@ -380,6 +357,10 @@
             </div>
         </div>
     </footer>
+
+    <!-- Cargamos la librería html2canvas necesaria para capturar fotos en el script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="script.js"></script>
 </body>
+
 </html>
